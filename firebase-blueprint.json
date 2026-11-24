@@ -1,0 +1,505 @@
+{
+  "entities": {
+    "Profile": {
+      "title": "Profile",
+      "description": "User profile with granular RBAC role and optional linked familyId.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "fullName": { "type": "string" },
+        "email": { "type": "string" },
+        "role": { "type": "string", "enum": ["super_admin", "admin", "accountant", "manager", "viewer", "member"] },
+        "linkedFamilyId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "fullName", "email", "role", "createdAt", "updatedAt"]
+    },
+    "PublicSummary": {
+      "title": "PublicSummary",
+      "description": "Non-PII aggregate metrics and 6-month chart series for the public society dashboard.",
+      "type": "object",
+      "properties": {
+        "totalFamilies": { "type": "integer" },
+        "totalMembers": { "type": "integer" },
+        "totalCollection": { "type": "number" },
+        "totalDonations": { "type": "number" },
+        "totalExpense": { "type": "number" },
+        "totalWelfare": { "type": "number" },
+        "totalOutstanding": { "type": "number" },
+        "totalQurbaniMeatKg": { "type": "number" },
+        "totalDistributions": { "type": "integer" },
+        "deliveredDistributions": { "type": "integer" },
+        "latestQurbaniEvent": { "type": "string" },
+        "latestTotalMeatKg": { "type": "number" },
+        "latestPerFamilyKg": { "type": "number" },
+        "recentMonths": { "type": "array" },
+        "recentCollections": { "type": "array" },
+        "recentExpenses": { "type": "array" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["totalFamilies", "totalMembers", "totalCollection", "totalExpense", "updatedAt"]
+    },
+    "MosqueSchedule": {
+      "title": "MosqueSchedule",
+      "description": "Public prayer times, Ramadan Sehri/Iftar, Jumuah announcement, and Imam/Muazzin directory.",
+      "type": "object",
+      "properties": {
+        "mosqueName": { "type": "string" },
+        "fajrTime": { "type": "string" },
+        "sunriseTime": { "type": "string" },
+        "dhuhrTime": { "type": "string" },
+        "asrTime": { "type": "string" },
+        "maghribTime": { "type": "string" },
+        "ishaTime": { "type": "string" },
+        "jumuahTime": { "type": "string" },
+        "khutbahTopic": { "type": "string" },
+        "sehriEnd": { "type": "string" },
+        "iftarTime": { "type": "string" },
+        "imamName": { "type": "string" },
+        "imamPhone": { "type": "string" },
+        "muazzinName": { "type": "string" },
+        "muazzinPhone": { "type": "string" },
+        "updatedBy": { "type": "string" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["mosqueName", "fajrTime", "dhuhrTime", "asrTime", "maghribTime", "ishaTime", "jumuahTime", "updatedAt"]
+    },
+    "Notice": {
+      "title": "Notice",
+      "description": "Public mosque or society announcement with optional pinned status.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "content": { "type": "string" },
+        "category": { "type": "string", "enum": ["general", "prayer", "finance", "qurbani"] },
+        "pinned": { "type": "boolean" },
+        "authorUid": { "type": "string" },
+        "authorName": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "content", "category", "authorUid", "authorName", "createdAt", "updatedAt"]
+    },
+    "Family": {
+      "title": "Family",
+      "description": "Registered society family household with optional member portal email link.",
+      "type": "object",
+      "properties": {
+        "familyName": { "type": "string" },
+        "phone": { "type": "string" },
+        "address": { "type": "string" },
+        "familyCode": { "type": "string" },
+        "linkedEmail": { "type": "string" },
+        "active": { "type": "boolean" },
+        "createdBy": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["familyName", "familyCode", "active", "createdBy", "createdAt", "updatedAt"]
+    },
+    "Member": {
+      "title": "Member",
+      "description": "Individual member linked to a family.",
+      "type": "object",
+      "properties": {
+        "familyId": { "type": "string" },
+        "familyName": { "type": "string" },
+        "memberName": { "type": "string" },
+        "phone": { "type": "string" },
+        "relation": { "type": "string" },
+        "occupation": { "type": "string" },
+        "head": { "type": "boolean" },
+        "active": { "type": "boolean" },
+        "createdBy": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["familyId", "familyName", "memberName", "head", "active", "createdBy", "createdAt", "updatedAt"]
+    },
+    "Due": {
+      "title": "Due",
+      "description": "Monthly, yearly, or special subscription due definition.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "dueType": { "type": "string", "enum": ["monthly", "yearly", "special"] },
+        "amount": { "type": "number" },
+        "dueMonth": { "type": "integer" },
+        "dueYear": { "type": "integer" },
+        "active": { "type": "boolean" },
+        "createdBy": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "dueType", "amount", "dueMonth", "dueYear", "createdBy", "createdAt", "updatedAt"]
+    },
+    "Payment": {
+      "title": "Payment",
+      "description": "Collected payment from a family with receipt number and optional account link.",
+      "type": "object",
+      "properties": {
+        "familyId": { "type": "string" },
+        "familyName": { "type": "string" },
+        "dueId": { "type": "string" },
+        "dueTitle": { "type": "string" },
+        "accountId": { "type": "string" },
+        "accountName": { "type": "string" },
+        "amount": { "type": "number" },
+        "paymentMethod": { "type": "string", "enum": ["cash", "bkash", "nagad", "bank"] },
+        "receiptNo": { "type": "string" },
+        "paymentDate": { "type": "string" },
+        "note": { "type": "string" },
+        "createdBy": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["familyId", "familyName", "amount", "paymentMethod", "receiptNo", "paymentDate", "createdBy", "createdAt", "updatedAt"]
+    },
+    "Donation": {
+      "title": "Donation",
+      "description": "Zakat, Fitrah, Sadqah, Construction, Orphan Welfare, or General donation record.",
+      "type": "object",
+      "properties": {
+        "donorName": { "type": "string" },
+        "anonymous": { "type": "boolean" },
+        "fundType": { "type": "string", "enum": ["general", "zakat", "fitrah", "sadqah", "construction", "orphan_welfare"] },
+        "amount": { "type": "number" },
+        "paymentMethod": { "type": "string", "enum": ["cash", "bkash", "nagad", "bank"] },
+        "transactionRef": { "type": "string" },
+        "accountId": { "type": "string" },
+        "accountName": { "type": "string" },
+        "receiptNo": { "type": "string" },
+        "donationDate": { "type": "string" },
+        "note": { "type": "string" },
+        "createdBy": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["donorName", "anonymous", "fundType", "amount", "paymentMethod", "receiptNo", "donationDate", "createdBy", "createdAt", "updatedAt"]
+    },
+    "Expense": {
+      "title": "Expense",
+      "description": "Mosque and society expenditure record with optional voucher and account link.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "category": { "type": "string" },
+        "voucherNo": { "type": "string" },
+        "accountId": { "type": "string" },
+        "accountName": { "type": "string" },
+        "amount": { "type": "number" },
+        "expenseDate": { "type": "string" },
+        "note": { "type": "string" },
+        "createdBy": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "category", "amount", "expenseDate", "createdBy", "createdAt", "updatedAt"]
+    },
+    "BankAccount": {
+      "title": "BankAccount",
+      "description": "Cash box, Bank account, bKash, or Nagad wallet balance tracker.",
+      "type": "object",
+      "properties": {
+        "accountName": { "type": "string" },
+        "accountType": { "type": "string", "enum": ["cash", "bank", "bkash", "nagad"] },
+        "accountNumber": { "type": "string" },
+        "balance": { "type": "number" },
+        "active": { "type": "boolean" },
+        "createdBy": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["accountName", "accountType", "balance", "active", "createdBy", "createdAt", "updatedAt"]
+    },
+    "Budget": {
+      "title": "Budget",
+      "description": "Monthly or yearly category budget limit.",
+      "type": "object",
+      "properties": {
+        "category": { "type": "string" },
+        "periodLabel": { "type": "string" },
+        "budgetAmount": { "type": "number" },
+        "createdBy": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["category", "periodLabel", "budgetAmount", "createdBy", "createdAt", "updatedAt"]
+    },
+    "QurbaniBatch": {
+      "title": "QurbaniBatch",
+      "description": "Qurbani meat collection batch with equal per-family share calculation.",
+      "type": "object",
+      "properties": {
+        "eventName": { "type": "string" },
+        "animalInfo": { "type": "string" },
+        "purchaseCost": { "type": "number" },
+        "totalMeatKg": { "type": "number" },
+        "totalFamilies": { "type": "integer" },
+        "distributionPerFamily": { "type": "number" },
+        "eventDate": { "type": "string" },
+        "status": { "type": "string", "enum": ["draft", "distributing", "completed"] },
+        "createdBy": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["eventName", "totalMeatKg", "totalFamilies", "distributionPerFamily", "eventDate", "status", "createdBy", "createdAt", "updatedAt"]
+    },
+    "MeatDistribution": {
+      "title": "MeatDistribution",
+      "description": "Per-family meat allocation and delivery record for a Qurbani batch.",
+      "type": "object",
+      "properties": {
+        "batchId": { "type": "string" },
+        "familyId": { "type": "string" },
+        "familyName": { "type": "string" },
+        "familyCode": { "type": "string" },
+        "allocatedKg": { "type": "number" },
+        "deliveredKg": { "type": "number" },
+        "receivedBy": { "type": "string" },
+        "receivedAt": { "type": "string", "format": "date-time" },
+        "status": { "type": "string", "enum": ["pending", "delivered"] },
+        "createdBy": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["batchId", "familyId", "familyName", "familyCode", "allocatedKg", "deliveredKg", "status", "createdBy", "createdAt", "updatedAt"]
+    },
+    "Meeting": {
+      "title": "Meeting",
+      "description": "Committee meeting minutes, attendees, decisions, and action progress.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "meetingDate": { "type": "string" },
+        "meetingTime": { "type": "string" },
+        "location": { "type": "string" },
+        "agenda": { "type": "string" },
+        "attendees": { "type": "string" },
+        "decisions": { "type": "string" },
+        "assignedTo": { "type": "string" },
+        "deadline": { "type": "string" },
+        "status": { "type": "string", "enum": ["scheduled", "in_progress", "completed"] },
+        "createdBy": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "meetingDate", "decisions", "status", "createdBy", "createdAt", "updatedAt"]
+    },
+    "CommitteeMember": {
+      "title": "CommitteeMember",
+      "description": "Mosque or society executive committee member and term.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "role": { "type": "string" },
+        "phone": { "type": "string" },
+        "familyId": { "type": "string" },
+        "familyName": { "type": "string" },
+        "term": { "type": "string" },
+        "active": { "type": "boolean" },
+        "createdBy": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "role", "active", "createdBy", "createdAt", "updatedAt"]
+    },
+    "SocietyEvent": {
+      "title": "SocietyEvent",
+      "description": "Mosque or community event schedule and details.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "eventDate": { "type": "string" },
+        "eventTime": { "type": "string" },
+        "location": { "type": "string" },
+        "eventType": { "type": "string", "enum": ["religious", "social", "education", "informational"] },
+        "description": { "type": "string" },
+        "rsvpEnabled": { "type": "boolean" },
+        "createdBy": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "eventDate", "eventType", "createdBy", "createdAt", "updatedAt"]
+    },
+    "SocietyAsset": {
+      "title": "SocietyAsset",
+      "description": "Mosque physical asset registry with valuation and condition.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "category": { "type": "string" },
+        "value": { "type": "number" },
+        "purchaseDate": { "type": "string" },
+        "condition": { "type": "string", "enum": ["good", "needs_repair", "damaged"] },
+        "location": { "type": "string" },
+        "note": { "type": "string" },
+        "createdBy": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "category", "value", "condition", "createdBy", "createdAt", "updatedAt"]
+    },
+    "SocietyDocument": {
+      "title": "SocietyDocument",
+      "description": "Official mosque and society document index.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "category": { "type": "string" },
+        "docDate": { "type": "string" },
+        "fileName": { "type": "string" },
+        "note": { "type": "string" },
+        "createdBy": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "category", "docDate", "createdBy", "createdAt", "updatedAt"]
+    },
+    "WelfareRecord": {
+      "title": "WelfareRecord",
+      "description": "Social welfare grants (medical, zakat aid, relief) and graveyard/burial plot records.",
+      "type": "object",
+      "properties": {
+        "recordType": { "type": "string", "enum": ["medical", "zakat_aid", "emergency_relief", "education", "burial"] },
+        "beneficiaryName": { "type": "string" },
+        "phone": { "type": "string" },
+        "plotNumber": { "type": "string" },
+        "amount": { "type": "number" },
+        "accountId": { "type": "string" },
+        "accountName": { "type": "string" },
+        "recordDate": { "type": "string" },
+        "note": { "type": "string" },
+        "createdBy": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["recordType", "beneficiaryName", "amount", "recordDate", "createdBy", "createdAt", "updatedAt"]
+    },
+    "Complaint": {
+      "title": "Complaint",
+      "description": "Member-submitted complaint or suggestion with admin reply and status.",
+      "type": "object",
+      "properties": {
+        "authorUid": { "type": "string" },
+        "authorName": { "type": "string" },
+        "familyId": { "type": "string" },
+        "subject": { "type": "string" },
+        "message": { "type": "string" },
+        "status": { "type": "string", "enum": ["open", "reviewed", "resolved"] },
+        "adminReply": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["authorUid", "authorName", "subject", "message", "status", "createdAt", "updatedAt"]
+    },
+    "AuditLog": {
+      "title": "AuditLog",
+      "description": "Immutable administrative audit trail with before/after context.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "userEmail": { "type": "string" },
+        "action": { "type": "string" },
+        "tableName": { "type": "string" },
+        "recordId": { "type": "string" },
+        "summary": { "type": "string" },
+        "beforeSummary": { "type": "string" },
+        "afterSummary": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "action", "tableName", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/profiles/{userId}": {
+      "schema": { "$ref": "#/entities/Profile" },
+      "description": "User profiles and RBAC role mapping."
+    },
+    "/public_summary/{docId}": {
+      "schema": { "$ref": "#/entities/PublicSummary" },
+      "description": "Aggregate public dashboard summary without PII."
+    },
+    "/mosque_schedule/{docId}": {
+      "schema": { "$ref": "#/entities/MosqueSchedule" },
+      "description": "Public mosque prayer times and Imam/Muazzin directory."
+    },
+    "/notices/{noticeId}": {
+      "schema": { "$ref": "#/entities/Notice" },
+      "description": "Public mosque & society notices."
+    },
+    "/families/{familyId}": {
+      "schema": { "$ref": "#/entities/Family" },
+      "description": "Registered families managed by staff or readable by linked member."
+    },
+    "/members/{memberId}": {
+      "schema": { "$ref": "#/entities/Member" },
+      "description": "Family members managed by staff or readable by linked family member."
+    },
+    "/dues/{dueId}": {
+      "schema": { "$ref": "#/entities/Due" },
+      "description": "Monthly, yearly, and special society dues."
+    },
+    "/payments/{paymentId}": {
+      "schema": { "$ref": "#/entities/Payment" },
+      "description": "Family payments and receipts."
+    },
+    "/donations/{donationId}": {
+      "schema": { "$ref": "#/entities/Donation" },
+      "description": "Zakat, Fitrah, Sadqah, and Construction donations."
+    },
+    "/expenses/{expenseId}": {
+      "schema": { "$ref": "#/entities/Expense" },
+      "description": "Mosque and society expenses."
+    },
+    "/bank_accounts/{accountId}": {
+      "schema": { "$ref": "#/entities/BankAccount" },
+      "description": "Cash, Bank, bKash, and Nagad accounts."
+    },
+    "/budgets/{budgetId}": {
+      "schema": { "$ref": "#/entities/Budget" },
+      "description": "Category expense budgets."
+    },
+    "/qurbani_batches/{batchId}": {
+      "schema": { "$ref": "#/entities/QurbaniBatch" },
+      "description": "Qurbani meat collection batches."
+    },
+    "/meat_distributions/{distId}": {
+      "schema": { "$ref": "#/entities/MeatDistribution" },
+      "description": "Per-family Qurbani meat distribution records."
+    },
+    "/committees/{memberId}": {
+      "schema": { "$ref": "#/entities/CommitteeMember" },
+      "description": "Mosque & society executive committee members."
+    },
+    "/meetings/{meetingId}": {
+      "schema": { "$ref": "#/entities/Meeting" },
+      "description": "Committee meetings and resolution tracking."
+    },
+    "/events/{eventId}": {
+      "schema": { "$ref": "#/entities/SocietyEvent" },
+      "description": "Public mosque & society events."
+    },
+    "/assets/{assetId}": {
+      "schema": { "$ref": "#/entities/SocietyAsset" },
+      "description": "Mosque physical asset registry."
+    },
+    "/documents/{docId}": {
+      "schema": { "$ref": "#/entities/SocietyDocument" },
+      "description": "Official society documents archive index."
+    },
+    "/welfare_records/{recordId}": {
+      "schema": { "$ref": "#/entities/WelfareRecord" },
+      "description": "Welfare grants and graveyard/burial records."
+    },
+    "/complaints/{complaintId}": {
+      "schema": { "$ref": "#/entities/Complaint" },
+      "description": "Member complaints and suggestions."
+    },
+    "/audit_logs/{logId}": {
+      "schema": { "$ref": "#/entities/AuditLog" },
+      "description": "Immutable admin audit log entries."
+    }
+  }
+}

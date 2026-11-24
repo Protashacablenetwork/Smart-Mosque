@@ -1,0 +1,6 @@
+{
+  "name": "Masjid Society",
+  "description": "Mosque and society management app for families, members, dues, payments, expenses, Qurbani meat distribution, public summary, and notices.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

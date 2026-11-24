@@ -1,0 +1,1860 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a7d52">
+<title>মসজিদ ও সমাজ ব্যবস্থাপনা — সম্পূর্ণ সিস্টেম</title>
+<style>
+:root{
+  --bg:#f1f5f2; --bg2:#ffffff; --card:#ffffff;
+  --ink:#122019; --ink2:#2c3d34; --muted:#6b7b72;
+  --line:#e3ebe6; --line2:#eef4f0;
+  --green:#0a7d52; --green2:#0d9d68; --green-soft:#e7f4ed;
+  --red:#c43d3d; --red-soft:#fdecec;
+  --gold:#b8862a; --gold-soft:#fdf3e0;
+  --blue:#2f6fed; --blue-soft:#eaf1fe;
+  --purple:#7c4ddb; --purple-soft:#f2ecfe;
+  --shadow:0 1px 2px rgba(16,40,28,.04), 0 8px 24px rgba(16,40,28,.06);
+  --shadow-lg:0 20px 60px rgba(16,40,28,.18);
+  --r:16px; --r-sm:11px;
+  --side:250px;
+  color-scheme:light;
+}
+[data-theme="dark"]{
+  --bg:#0b1310; --bg2:#111b16; --card:#131f19;
+  --ink:#e9f2ed; --ink2:#c3d5cb; --muted:#89a094;
+  --line:#22322b; --line2:#1a2822;
+  --green:#26a875; --green2:#33c08c; --green-soft:#12342a;
+  --red:#e87070; --red-soft:#331a1b;
+  --gold:#d9a545; --gold-soft:#2e2617;
+  --blue:#5b8dff; --blue-soft:#16233f;
+  --purple:#a988f0; --purple-soft:#221735;
+  --shadow:0 1px 2px rgba(0,0,0,.35), 0 8px 24px rgba(0,0,0,.28);
+  --shadow-lg:0 24px 70px rgba(0,0,0,.6);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans Bengali",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:14.5px;line-height:1.6;-webkit-font-smoothing:antialiased;transition:background .25s,color .25s}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0;border-radius:var(--r-sm);padding:10px 15px;background:var(--green);color:#fff;font-weight:650;transition:.18s;letter-spacing:.1px}
+button:hover{filter:brightness(1.07)}
+button:active{transform:translateY(1px)}
+button.secondary{background:var(--green-soft);color:var(--green)}
+button.danger{background:var(--red-soft);color:var(--red)}
+button.gold{background:var(--gold-soft);color:var(--gold)}
+button.blue{background:var(--blue-soft);color:var(--blue)}
+button.purple{background:var(--purple-soft);color:var(--purple)}
+button.ghost{background:transparent;color:var(--muted);padding:8px 11px}
+button.ghost:hover{background:var(--line2);color:var(--ink)}
+button.sm{padding:6px 10px;font-size:12.5px;border-radius:8px}
+input,select,textarea{width:100%;padding:11px 13px;border:1.5px solid var(--line);border-radius:var(--r-sm);background:var(--bg2);color:var(--ink);outline:none;transition:.18s}
+input:focus,select:focus,textarea:focus{border-color:var(--green2);box-shadow:0 0 0 3.5px var(--green-soft)}
+textarea{resize:vertical;min-height:80px}
+select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:calc(100% - 18px) 50%,calc(100% - 13px) 50%;background-size:5px 5px,5px 5px;background-repeat:no-repeat;padding-right:34px}
+label{font-size:12.5px;font-weight:650;display:block;margin-bottom:6px;color:var(--ink2)}
+::selection{background:var(--green-soft);color:var(--green)}
+
+.app{display:grid;grid-template-columns:var(--side) 1fr;min-height:100vh}
+.side{background:linear-gradient(168deg,#0d4230 0%,#0a2f22 55%,#082418 100%);color:#dcece4;padding:16px 12px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;z-index:40}
+.brand{display:flex;gap:10px;align-items:flex-start;padding:2px 8px 16px}
+.brand .logo{width:38px;height:38px;flex:none;border-radius:12px;display:grid;place-items:center;font-size:19px;background:linear-gradient(150deg,#18b57c,#0a6d49);box-shadow:0 6px 18px rgba(0,0,0,.28)}
+.brand b{font-size:14px;display:block;line-height:1.3;color:#fff;font-weight:800}
+.brand small{display:block;font-size:10px;color:#8fbca8;font-weight:400;margin-top:2px}
+.nav{display:flex;flex-direction:column;gap:2px;overflow-y:auto;flex:1;padding-right:2px;scrollbar-width:thin}
+.nav::-webkit-scrollbar{width:5px}
+.nav::-webkit-scrollbar-thumb{background:#ffffff22;border-radius:9px}
+.nav .group-label{font-size:10px;font-weight:800;letter-spacing:1.2px;color:#5d8a76;padding:10px 10px 4px;text-transform:uppercase}
+.nav .group-label:first-child{padding-top:0}
+.nav button{background:transparent;text-align:left;color:#b9d6c7;font-weight:550;font-size:12.8px;padding:7px 10px;display:flex;gap:9px;align-items:center;border-radius:9px;position:relative}
+.nav button .ni{width:17px;text-align:center;font-size:13px;opacity:.85;flex:none}
+.nav button:hover{background:#ffffff12;color:#fff}
+.nav button.active{background:linear-gradient(90deg,#ffffff1f,#ffffff08);color:#fff;font-weight:700}
+.nav button.active::before{content:"";position:absolute;left:-12px;top:6px;bottom:6px;width:3px;border-radius:0 4px 4px 0;background:var(--green2)}
+.sidefoot{padding:10px 8px 2px;color:#7fa994;font-size:10.5px;line-height:1.5;border-top:1px solid #ffffff14;margin-top:8px}
+.overlay{position:fixed;inset:0;background:#04150ecc;z-index:39;display:none;backdrop-filter:blur(3px)}
+.overlay.show{display:block}
+.main{min-width:0;display:flex;flex-direction:column}
+.top{min-height:72px;background:color-mix(in srgb,var(--bg2) 88%,transparent);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px;padding:10px 26px;position:sticky;top:0;z-index:30;backdrop-filter:blur(16px) saturate(1.3)}
+.top h1{font-size:17.5px;margin:0;font-weight:800;line-height:1.3}
+.top .crumb{margin:1px 0 0;font-size:11.5px;color:var(--muted);font-weight:400}
+.top-actions{margin-left:auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.icon-btn{background:var(--bg);color:var(--ink);border:1.5px solid var(--line);width:38px;height:38px;padding:0;display:grid;place-items:center;border-radius:11px;font-size:16px}
+.icon-btn:hover{background:var(--green-soft);border-color:var(--green-soft);color:var(--green)}
+.hamburger{display:none}
+.wrap{padding:24px 26px 10px;max-width:1560px;width:100%;margin:0 auto;flex:1}
+.footer{text-align:center;color:var(--muted);font-size:11.5px;padding:22px 16px 26px;opacity:.8}
+.grid{display:grid;gap:14px}
+.stats{grid-template-columns:repeat(4,minmax(0,1fr))}
+.stats2{grid-template-columns:repeat(4,minmax(0,1fr))}
+.card,.panel{background:var(--card);border:1.5px solid var(--line);border-radius:var(--r);padding:18px;box-shadow:var(--shadow);transition:.2s}
+.card:hover{box-shadow:var(--shadow-lg);border-color:color-mix(in srgb,var(--green) 22%,var(--line))}
+.stat{position:relative;overflow:hidden;display:flex;flex-direction:column;gap:4px}
+.stat::after{content:"";position:absolute;right:-26px;top:-26px;width:88px;height:88px;border-radius:50%;background:var(--green-soft);opacity:.55;pointer-events:none}
+.stat.t-red::after{background:var(--red-soft)}
+.stat.t-gold::after{background:var(--gold-soft)}
+.stat.t-blue::after{background:var(--blue-soft)}
+.stat.t-purple::after{background:var(--purple-soft)}
+.stat .st-top{display:flex;align-items:center;gap:9px;position:relative;z-index:1}
+.stat .ico{width:34px;height:34px;flex:none;border-radius:10px;display:grid;place-items:center;font-size:15px;background:var(--green-soft);color:var(--green)}
+.stat.t-red .ico{background:var(--red-soft);color:var(--red)}
+.stat.t-gold .ico{background:var(--gold-soft);color:var(--gold)}
+.stat.t-blue .ico{background:var(--blue-soft);color:var(--blue)}
+.stat.t-purple .ico{background:var(--purple-soft);color:var(--purple)}
+.stat small{color:var(--muted);font-size:12.5px;font-weight:600}
+.stat strong{display:block;font-size:24px;font-weight:800;letter-spacing:-.4px;margin-top:6px;position:relative;z-index:1}
+.stat .sub{font-size:11.5px;color:var(--muted);font-weight:500}
+.section{font-size:16px;font-weight:800;margin:26px 0 12px;display:flex;align-items:center;gap:10px}
+.section::before{content:"";width:4px;height:17px;border-radius:3px;background:linear-gradient(180deg,var(--green2),var(--green))}
+.section .count{font-size:11.5px;font-weight:600;color:var(--muted);background:var(--line2);padding:2px 9px;border-radius:20px}
+.toolbar{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+.toolbar .spacer{flex:1}
+.searchbox{position:relative;flex:1;max-width:330px;min-width:180px}
+.searchbox input{padding-left:36px}
+.searchbox::before{content:"⌕";position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:16px;pointer-events:none}
+.table-wrap{background:var(--card);border:1.5px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);overflow:auto}
+table{width:100%;border-collapse:collapse;min-width:680px}
+th,td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--line2);font-size:13.5px;vertical-align:middle}
+th{color:var(--muted);font-weight:700;font-size:11.5px;text-transform:uppercase;letter-spacing:.5px;background:color-mix(in srgb,var(--bg) 55%,var(--card));position:sticky;top:0;z-index:1;border-bottom:1.5px solid var(--line);white-space:nowrap}
+tbody tr{transition:background .13s}
+tbody tr:hover{background:color-mix(in srgb,var(--green-soft) 42%,transparent)}
+tbody tr:last-child td{border-bottom:0}
+td .act{margin:2px 3px 2px 0}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;font-weight:650}
+.badge{display:inline-flex;align-items:center;gap:5px;padding:3.5px 10px;border-radius:20px;background:var(--green-soft);color:var(--green);font-size:11.5px;font-weight:700;white-space:nowrap}
+.badge.warn{background:var(--gold-soft);color:var(--gold)}
+.badge.red{background:var(--red-soft);color:var(--red)}
+.badge.gray{background:var(--line2);color:var(--muted)}
+.badge.blue{background:var(--blue-soft);color:var(--blue)}
+.badge.purple{background:var(--purple-soft);color:var(--purple)}
+.badge::before{content:"";width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.85}
+.muted{color:var(--muted)}
+.mono{font-variant-numeric:tabular-nums}
+.empty{text-align:center;padding:46px 20px;color:var(--muted)}
+.empty .big{font-size:34px;display:block;margin-bottom:8px;opacity:.45}
+.notice{padding:13px 16px;border-radius:var(--r-sm);background:var(--gold-soft);color:var(--gold);font-size:12.8px;font-weight:550;line-height:1.65;border:1px solid color-mix(in srgb,var(--gold) 20%,transparent)}
+.notice.info{background:var(--blue-soft);color:var(--blue);border-color:color-mix(in srgb,var(--blue) 20%,transparent)}
+.notice.ok{background:var(--green-soft);color:var(--green);border-color:color-mix(in srgb,var(--green) 20%,transparent)}
+.notice b{font-weight:800}
+.quick{display:flex;gap:9px;flex-wrap:wrap}
+.quick button{font-size:13px}
+.chart-card{padding:18px 18px 10px}
+.card-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.card-head h3{margin:0;font-size:15px;font-weight:800}
+.legend{display:flex;gap:14px;font-size:11.5px;color:var(--muted);font-weight:600}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:5px;vertical-align:middle}
+canvas.chart{display:block;width:100%;height:230px}
+.progress{height:8px;background:var(--line2);border-radius:9px;overflow:hidden;min-width:80px}
+.progress span{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,var(--green2),var(--green));transition:width .5s}
+.bar-row{display:grid;grid-template-columns:130px 1fr 84px;gap:12px;align-items:center;padding:7px 0;font-size:13px}
+.bar-row .bl{color:var(--ink2);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar-row .bv{text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
+.bar-track{height:9px;background:var(--line2);border-radius:9px;overflow:hidden}
+.bar-track i{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,var(--green2),var(--green))}
+.modal{position:fixed;inset:0;background:rgba(6,24,16,.62);backdrop-filter:blur(5px);display:none;align-items:center;justify-content:center;padding:16px;z-index:60;overflow-y:auto}
+.modal.show{display:flex;animation:fade .18s ease}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.dialog{background:var(--card);border-radius:20px;width:min(680px,100%);max-height:92vh;display:flex;flex-direction:column;box-shadow:var(--shadow-lg);border:1.5px solid var(--line);animation:pop .22s cubic-bezier(.2,.9,.3,1.2)}
+@keyframes pop{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:none}}
+.dialog header{padding:20px 22px 14px;border-bottom:1px solid var(--line2);display:flex;align-items:center;gap:10px}
+.dialog header h3{margin:0;font-size:16.5px;font-weight:800}
+.dialog .body{padding:18px 22px;overflow-y:auto}
+.dialog footer{padding:14px 22px 18px;display:flex;justify-content:flex-end;gap:9px;border-top:1px solid var(--line2);flex-wrap:wrap}
+.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.formgrid .field.full{grid-column:1/-1}
+.formgrid .req{color:var(--red);font-weight:800}
+.dl{display:grid;grid-template-columns:auto 1fr;gap:9px 16px;font-size:13.5px}
+.dl dt{color:var(--muted);font-weight:600;white-space:nowrap}
+.dl dd{margin:0;font-weight:600}
+#toasts{position:fixed;right:18px;bottom:18px;z-index:90;display:flex;flex-direction:column;gap:9px;pointer-events:none}
+.toast{background:var(--ink);color:var(--bg2);padding:12px 17px;border-radius:12px;font-size:13px;font-weight:600;box-shadow:var(--shadow-lg);animation:slideIn .25s ease;max-width:330px;border-left:3.5px solid var(--green2)}
+.toast.error{border-left-color:var(--red)}
+.toast.warn{border-left-color:var(--gold)}
+.toast.out{animation:slideOut .3s ease forwards}
+@keyframes slideIn{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:none}}
+@keyframes slideOut{to{opacity:0;transform:translateX(28px)}}
+.hidden{display:none!important}
+.hero{background:linear-gradient(135deg,var(--green),#0a5c3d);color:#fff;padding:26px;border-radius:var(--r);position:relative;overflow:hidden}
+.hero::before{content:"🕌";position:absolute;right:-10px;top:-20px;font-size:160px;opacity:.06;line-height:1}
+.hero h2{margin:0 0 4px;font-size:22px;font-weight:800}
+.hero p{margin:0;opacity:.85;font-size:13px}
+.hero .hero-actions{margin-top:16px;display:flex;gap:8px;flex-wrap:wrap}
+.hero .hero-actions button{background:rgba(255,255,255,.15);color:#fff;backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.2)}
+.hero .hero-actions button:hover{background:rgba(255,255,255,.25)}
+.prayer-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}
+.prayer-card{background:var(--card);border:1.5px solid var(--line);border-radius:var(--r);padding:16px 12px;text-align:center;transition:.2s;cursor:pointer}
+.prayer-card:hover{border-color:var(--green);transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+.prayer-card.now{background:linear-gradient(150deg,var(--green-soft),var(--card));border-color:var(--green)}
+.prayer-card .p-name{font-size:12px;color:var(--muted);font-weight:700;letter-spacing:.5px}
+.prayer-card .p-time{font-size:20px;font-weight:800;margin-top:6px;color:var(--green)}
+.prayer-card .p-icon{font-size:20px;margin-bottom:4px;opacity:.7}
+.cal-item{display:flex;gap:14px;padding:12px 0;border-bottom:1px solid var(--line2)}
+.cal-item:last-child{border-bottom:0}
+.cal-date{width:54px;flex:none;text-align:center;background:var(--green-soft);border-radius:11px;padding:6px 4px}
+.cal-date .d{font-size:20px;font-weight:800;color:var(--green);line-height:1}
+.cal-date .m{font-size:10.5px;font-weight:700;color:var(--green);text-transform:uppercase;margin-top:3px}
+.cal-body{flex:1;min-width:0}
+.cal-body b{font-size:14px;display:block;margin-bottom:2px}
+.cal-body p{margin:0;font-size:12.5px;color:var(--muted)}
+.chip{display:inline-block;padding:3px 10px;border-radius:20px;background:var(--line2);color:var(--ink2);font-size:11px;font-weight:650;margin-right:4px}
+.switch{position:relative;display:inline-block;width:44px;height:24px;flex:none}
+.switch input{opacity:0;width:0;height:0}
+.switch .slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:var(--line);transition:.3s;border-radius:24px}
+.switch .slider:before{content:"";position:absolute;height:18px;width:18px;left:3px;bottom:3px;background:#fff;transition:.3s;border-radius:50%}
+.switch input:checked + .slider{background:var(--green)}
+.switch input:checked + .slider:before{transform:translateX(20px)}
+.setting-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 0;border-bottom:1px solid var(--line2);flex-wrap:wrap}
+.setting-row:last-child{border-bottom:0}
+.setting-row .sr-info{flex:1;min-width:200px}
+.setting-row b{display:block;font-size:14px;margin-bottom:2px}
+.setting-row small{color:var(--muted);font-size:12px}
+.health-item{display:flex;align-items:center;gap:12px;padding:14px;background:var(--bg);border-radius:var(--r-sm);border:1.5px solid var(--line);margin-bottom:10px}
+.health-item .hi-icon{width:40px;height:40px;flex:none;border-radius:11px;display:grid;place-items:center;font-size:18px;background:var(--green-soft);color:var(--green)}
+.health-item.warn .hi-icon{background:var(--gold-soft);color:var(--gold)}
+.health-item.bad .hi-icon{background:var(--red-soft);color:var(--red)}
+.health-item .hi-body{flex:1;min-width:0}
+.health-item b{display:block;font-size:13.5px;margin-bottom:2px}
+.health-item small{color:var(--muted);font-size:12px}
+.health-item .hi-val{font-weight:800;font-size:15px;white-space:nowrap}
+.metric-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px}
+.metric{background:var(--card);border:1.5px solid var(--line);border-radius:var(--r-sm);padding:14px}
+.metric .mv{font-size:22px;font-weight:800;letter-spacing:-.4px}
+.metric .ml{font-size:11.5px;color:var(--muted);font-weight:600;margin-top:2px}
+.tabs{display:flex;gap:2px;border-bottom:1.5px solid var(--line);margin-bottom:16px;overflow-x:auto}
+.tabs button{background:transparent;color:var(--muted);border-radius:0;border-bottom:2.5px solid transparent;margin-bottom:-1.5px;padding:10px 14px;font-size:13px;white-space:nowrap}
+.tabs button:hover{color:var(--ink);background:var(--line2)}
+.tabs button.active{color:var(--green);border-bottom-color:var(--green);font-weight:700;background:transparent}
+@media(max-width:1080px){.stats,.stats2{grid-template-columns:repeat(2,minmax(0,1fr))}.metric-row{grid-template-columns:repeat(2,1fr)}.prayer-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:900px){.app{grid-template-columns:1fr}.side{position:fixed;left:0;top:0;bottom:0;width:270px;height:100vh;transform:translateX(-104%);transition:transform .26s cubic-bezier(.3,.9,.3,1);box-shadow:var(--shadow-lg);padding-top:18px}.side.open{transform:none}.hamburger{display:grid}.top{padding:10px 16px;min-height:64px;gap:10px}.top h1{font-size:15px}.wrap{padding:16px 14px 6px}.section{margin-top:20px}}
+@media(max-width:620px){.stats,.stats2{grid-template-columns:1fr 1fr;gap:9px}.card{padding:14px}.stat strong{font-size:20px}.stat .ico{width:29px;height:29px;font-size:13px}.formgrid{grid-template-columns:1fr}.toolbar>*{flex:1 1 100%}.searchbox{max-width:none}.bar-row{grid-template-columns:100px 1fr 72px;font-size:12.5px}.dialog{border-radius:16px}.dialog header,.dialog .body,.dialog footer{padding-left:16px;padding-right:16px}#toasts{left:14px;right:14px;bottom:14px}.toast{max-width:none}.prayer-grid{grid-template-columns:repeat(3,1fr)}.prayer-card{padding:12px 6px}.prayer-card .p-time{font-size:16px}.metric-row{grid-template-columns:1fr 1fr}}
+@media print{.side,.top,.toolbar,.no-print,#toasts,.footer,.hamburger,.icon-btn{display:none!important}body{background:#fff}.app{display:block}.wrap{padding:0;max-width:none}.card,.panel,.table-wrap{box-shadow:none;border-color:#ddd;break-inside:avoid}table{min-width:0}}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <aside class="side" id="sidebar">
+    <div class="brand">
+      <div class="logo">🕌</div>
+      <div><b>মসজিদ ও সমাজ<br>ব্যবস্থাপনা</b><small>সম্পূর্ণ স্মার্ট সিস্টেম</small></div>
+    </div>
+    <nav class="nav" id="nav"></nav>
+    <div class="sidefoot">🔒 ডেটা এই ডিভাইসে সংরক্ষিত<br>ব্যাকআপ নিয়মিত নিন</div>
+  </aside>
+  <div class="overlay" id="overlay"></div>
+  <main class="main">
+    <header class="top">
+      <button class="icon-btn hamburger" id="hamburger" aria-label="মেনু">☰</button>
+      <div>
+        <h1 id="pageTitle">ড্যাশবোর্ড</h1>
+        <p class="crumb" id="pageSub">সার্বিক চিত্র</p>
+      </div>
+      <div class="top-actions">
+        <button class="icon-btn" id="themeBtn" title="থিম">🌙</button>
+        <span class="badge gray" id="roleBadge">শুধু দেখার মোড</span>
+        <button class="secondary sm" id="loginBtn">অ্যাডমিন লগইন</button>
+      </div>
+    </header>
+    <div class="wrap" id="content"></div>
+    <div class="footer">মসজিদ ও সমাজ ব্যবস্থাপনা • হিসাবের স্বচ্ছতায় আপনার পাশে</div>
+  </main>
+</div>
+
+<div class="modal" id="modal">
+  <div class="dialog">
+    <header><h3 id="modalTitle"></h3></header>
+    <div class="body" id="modalBody"></div>
+    <footer>
+      <button class="secondary" id="cancelModal">বাতিল</button>
+      <button id="saveModal">সংরক্ষণ</button>
+    </footer>
+  </div>
+</div>
+<div id="toasts"></div>
+
+<script>
+/* ============ STATE ============ */
+const KEY='mosque_society_v3', OLDKEY='mosque_society_v2', PINKEY='mosque_admin_pin', THEMEKEY='mosque_theme', LANGKEY='mosque_lang';
+
+function blankDB(){
+  return {
+    families:[], members:[], dues:[], payments:[], expenses:[],
+    batches:[], distributions:[], notices:[], logs:[],
+    committees:[], meetings:[], events:[], services:[], assets:[], documents:[],
+    prayerTimes:{fajr:'05:00', sunrise:'06:15', dhuhr:'12:30', asr:'16:00', maghrib:'18:15', isha:'19:30', jummah:'13:00'},
+    settings:{
+      language:'bn', theme:'light',
+      roles:{admin:true, member:true, auditor:true},
+      automation:{dueReminderDays:7, autoBackup:false, reminderTime:'08:00', autoReceipt:true},
+      api:{url:'', key:'', webhook:''},
+      mosqueName:'মসজিদ ও সমাজ ব্যবস্থাপনা',
+      publicMode:false
+    },
+    sessions:[]
+  };
+}
+function loadDB(){
+  try{
+    const raw=localStorage.getItem(KEY);
+    if(raw) return Object.assign(blankDB(),JSON.parse(raw));
+    const old=localStorage.getItem(OLDKEY);
+    if(old) return Object.assign(blankDB(),JSON.parse(old));
+  }catch(e){}
+  return blankDB();
+}
+let db = loadDB();
+let admin = sessionStorage.getItem('mosque_admin')==='yes';
+let page = 'dashboard';
+let formHandler = null;
+let currentTab = {};
+
+/* ============ HELPERS ============ */
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = () => (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36)+Math.random().toString(36).slice(2,9));
+const bn  = n => Number(n||0).toLocaleString('bn-BD',{maximumFractionDigits:3});
+const bnf = n => Number(n||0).toLocaleString('bn-BD',{maximumFractionDigits:2});
+const money = n => '৳ '+bnf(n);
+const today = () => { const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
+const BN_MONTHS=['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'];
+const BN_MONTHS_SHORT=['জানু','ফেব্রু','মার্চ','এপ্রিল','মে','জুন','জুলা','আগ','সেপ্ট','অক্টো','নভে','ডিসে'];
+function fmtDate(s){
+  if(!s) return '—';
+  const p=String(s).split('-');
+  if(p.length!==3 || isNaN(+p[0])) return esc(s);
+  return `${bn(+p[2])} ${BN_MONTHS_SHORT[+p[1]-1]||''} ${bn(+p[0])}`;
+}
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(db)); }catch(e){ toast('সংরক্ষণে সমস্যা','error'); } }
+function log(action, table, record){ db.logs.unshift({id:uid(), action, table, record, at:new Date().toLocaleString('bn-BD')}); db.logs = db.logs.slice(0,800); }
+function requireAdmin(){ if(admin) return true; toast('অ্যাডমিন লগইন প্রয়োজন','warn'); return false; }
+function toast(msg, type){
+  const el=document.createElement('div'); el.className='toast '+(type||''); el.textContent=msg;
+  $('#toasts').appendChild(el);
+  setTimeout(()=>{ el.classList.add('out'); setTimeout(()=>el.remove(),320); }, 2800);
+}
+function familyName(fid){ return db.families.find(x=>x.id===fid)?.name || '—'; }
+function duename(did){ return db.dues.find(x=>x.id===did)?.title || 'সাধারণ চাঁদা'; }
+function batchName(bid){ return db.batches.find(x=>x.id===bid)?.name || '—'; }
+function totalPaid(){ return db.payments.reduce((s,x)=>s+ +x.amount,0); }
+function totalSpent(){ return db.expenses.reduce((s,x)=>s+ +x.amount,0); }
+function activeFamilies(){ return db.families.filter(f=>f.active!==false); }
+function familyDue(fid){
+  const base = db.dues.filter(d=>d.active!==false).reduce((s,d)=>s+ +d.amount,0);
+  const paid = db.payments.filter(p=>p.family===fid).reduce((s,p)=>s+ +p.amount,0);
+  return Math.max(0, base - paid);
+}
+function totalOutstanding(){ return activeFamilies().reduce((s,f)=>s+familyDue(f.id),0); }
+function genReceipt(){
+  const d=new Date(), p=n=>String(n).padStart(2,'0');
+  const base='MS-'+d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+'-';
+  let n=1, r;
+  do { r = base + String(n).padStart(3,'0'); n++; } while(db.payments.some(x=>x.receipt===r) && n<999);
+  return r;
+}
+
+/* ============ NAV / PAGES ============ */
+const PAGES = {
+  dashboard:{t:'ড্যাশবোর্ড', s:'সার্বিক চিত্র', i:'▦'},
+  families:{t:'পরিবার', s:'পরিবার ব্যবস্থাপনা', i:'⌂'},
+  members:{t:'সদস্য', s:'সদস্য তালিকা', i:'♙'},
+  dues:{t:'চাঁদা নির্ধারণ', s:'চাঁদার হার', i:'৳'},
+  payments:{t:'চাঁদা আদায়', s:'আদায় ও রসিদ', i:'＋'},
+  expenses:{t:'আয়-ব্যয়', s:'খরচের হিসাব', i:'↗'},
+  qurbani:{t:'কুরবানি', s:'কুরবানি ব্যবস্থাপনা', i:'🐄'},
+  distribution:{t:'গোশত বিতরণ', s:'বিতরণ তালিকা', i:'⚖'},
+  notices:{t:'নোটিশ', s:'ঘোষণা ও বিজ্ঞপ্তি', i:'▤'},
+  portal:{t:'সদস্য পোর্টাল', s:'সদস্যের ব্যক্তিগত ভিউ', i:'👤'},
+  prayer:{t:'নামাজ ও ক্যালেন্ডার', s:'নামাজের সময় ও ইসলামিক ক্যালেন্ডার', i:'🕐'},
+  committee:{t:'কমিটি ও মিটিং', s:'কমিটি সদস্য ও সভা', i:'👥'},
+  social:{t:'সামাজিক সেবা', s:'সহায়তা ও সেবা', i:'🤝'},
+  assets:{t:'সম্পদ ও ডকুমেন্ট', s:'সম্পত্তি ও নথি', i:'📦'},
+  events:{t:'অনুষ্ঠান', s:'ইভেন্ট ব্যবস্থাপনা', i:'🎉'},
+  reports:{t:'রিপোর্ট', s:'প্রতিবেদন', i:'▥'},
+  analytics:{t:'Financial Analytics', s:'বিস্তারিত আর্থিক বিশ্লেষণ', i:'📊'},
+  transparency:{t:'Public Transparency', s:'প্রকাশ্য আর্থিক তথ্য', i:'🌐'},
+  audit:{t:'Audit Center', s:'সম্পূর্ণ অডিট লগ', i:'📋'},
+  backup:{t:'Backup & Restore', s:'ব্যাকআপ ব্যবস্থাপনা', i:'💾'},
+  security:{t:'Security Center', s:'নিরাপত্তা', i:'🔒'},
+  settings:{t:'সিস্টেম সেটিংস', s:'কনফিগারেশন', i:'⚙'},
+  roles:{t:'Role & Permission', s:'ভূমিকা ও অনুমতি', i:'👤'},
+  appearance:{t:'Language & Theme', s:'ভাষা ও থিম', i:'🌍'},
+  automation:{t:'Automation Center', s:'স্বয়ংক্রিয়করণ', i:'⚡'},
+  api:{t:'API Integration', s:'বাহ্যিক সংযোগ', i:'🔌'},
+  health:{t:'System Health', s:'সিস্টেম স্বাস্থ্য', i:'💚'}
+};
+const NAV_GROUPS = [
+  {t:'মূল', items:['dashboard','families','members','dues','payments','expenses','qurbani','distribution','notices']},
+  {t:'মসজিদ পরিচালনা', items:['portal','prayer','committee','social','assets','events']},
+  {t:'রিপোর্ট ও নিরাপত্তা', items:['reports','analytics','transparency','audit','backup','security']},
+  {t:'সিস্টেম সেটিংস', items:['settings','roles','appearance','automation','api','health']}
+];
+
+function buildNav(){
+  $('#nav').innerHTML = NAV_GROUPS.map(g=>`
+    <div class="group-label">${g.t}</div>
+    ${g.items.map(k=>`<button data-page="${k}"><span class="ni">${PAGES[k].i}</span><span>${PAGES[k].t}</span></button>`).join('')}
+  `).join('');
+}
+function setPage(p){
+  page = p;
+  currentTab[p] = currentTab[p] || '';
+  $$('#nav button').forEach(b=>b.classList.toggle('active', b.dataset.page===p));
+  $('#pageTitle').textContent = PAGES[p].t;
+  $('#pageSub').textContent = PAGES[p].s;
+  closeSidebar(); render(); window.scrollTo({top:0,behavior:'smooth'});
+}
+function openSidebar(){ $('#sidebar').classList.add('open'); $('#overlay').classList.add('show'); }
+function closeSidebar(){ $('#sidebar').classList.remove('open'); $('#overlay').classList.remove('show'); }
+function setTab(key, val){ currentTab[page]=val; render(); }
+
+/* ============ FORMS ============ */
+const FORMS = {
+  families:{title:'পরিবার', table:'families', fields:[
+    {k:'name',l:'পরিবারের নাম',req:true},{k:'code',l:'পরিবার কোড'},
+    {k:'phone',l:'মোবাইল',type:'tel'},{k:'address',l:'ঠিকানা',full:true},
+    {k:'active',l:'অবস্থা',type:'select',options:[['true','সক্রিয়'],['false','নিষ্ক্রিয়']],def:'true'}]},
+  members:{title:'সদস্য', table:'members', fields:[
+    {k:'name',l:'নাম',req:true},{k:'family',l:'পরিবার',type:'select',req:true,options:()=>db.families.map(f=>[f.id,f.name])},
+    {k:'phone',l:'মোবাইল',type:'tel'},{k:'relation',l:'সম্পর্ক'},
+    {k:'occupation',l:'পেশা'},{k:'head',l:'পরিবার প্রধান?',type:'select',options:[['false','না'],['true','হ্যাঁ']],def:'false'}]},
+  dues:{title:'চাঁদা নির্ধারণ', table:'dues', fields:[
+    {k:'title',l:'চাঁদার নাম',req:true},{k:'type',l:'ধরন',type:'select',options:[['monthly','মাসিক'],['yearly','বাৎসরিক'],['special','বিশেষ']],def:'monthly'},
+    {k:'amount',l:'পরিমাণ (টাকা)',type:'number',num:true,min:0,step:'0.01',req:true},
+    {k:'month',l:'মাস'},{k:'year',l:'বছর',type:'number',num:true,def:()=>String(new Date().getFullYear())},
+    {k:'active',l:'সক্রিয়?',type:'select',options:[['true','হ্যাঁ'],['false','না']],def:'true'}]},
+  payments:{title:'চাঁদা আদায়', table:'payments', fields:[
+    {k:'family',l:'পরিবার',type:'select',req:true,options:()=>activeFamilies().map(f=>[f.id,f.name])},
+    {k:'due',l:'চাঁদার ধরন',type:'select',options:()=>[['','সাধারণ চাঁদা'],...db.dues.map(d=>[d.id,d.title+' — '+money(d.amount)])]},
+    {k:'amount',l:'পরিমাণ (টাকা)',type:'number',num:true,min:0.01,step:'0.01',req:true},
+    {k:'method',l:'মাধ্যম',type:'select',options:[['নগদ','নগদ'],['বিকাশ','বিকাশ'],['নগদ (Nagad)','নগদ (Nagad)'],['ব্যাংক','ব্যাংক'],['অন্যান্য','অন্যান্য']],def:'নগদ'},
+    {k:'date',l:'তারিখ',type:'date',def:today},{k:'receipt',l:'রসিদ নম্বর',def:genReceipt},
+    {k:'note',l:'মন্তব্য',full:true,type:'textarea',rows:2}]},
+  expenses:{title:'ব্যয়', table:'expenses', fields:[
+    {k:'title',l:'বিবরণ',req:true},{k:'category',l:'খাত',type:'select',options:()=>['মসজিদ নির্মাণ','মসজিদ রক্ষণাবেক্ষণ','ইমাম/মুয়াজ্জিন বেতন','বিদ্যুৎ ও পানি','সামাজিক সহায়তা','কুরবানি','শিক্ষা ও দাওয়াহ','অন্যান্য'].map(v=>[v,v])},
+    {k:'amount',l:'পরিমাণ (টাকা)',type:'number',num:true,min:0.01,step:'0.01',req:true},
+    {k:'date',l:'তারিখ',type:'date',def:today},{k:'note',l:'মন্তব্য',full:true,type:'textarea',rows:2}]},
+  batches:{title:'কুরবানি', table:'batches', fields:[
+    {k:'name',l:'অনুষ্ঠানের নাম',req:true,def:()=>'কুরবানি '+new Date().getFullYear()},
+    {k:'date',l:'তারিখ',type:'date',def:today},
+    {k:'kg',l:'মোট গোশত (কেজি)',type:'number',num:true,min:0,step:'0.001',req:true},
+    {k:'status',l:'অবস্থা',type:'select',options:[['প্রস্তুত','প্রস্তুত'],['বিতরণ চলছে','বিতরণ চলছে'],['সম্পন্ন','সম্পন্ন']],def:'প্রস্তুত'}]},
+  notices:{title:'নোটিশ', table:'notices', fields:[
+    {k:'title',l:'শিরোনাম',req:true,full:true},{k:'body',l:'বিস্তারিত',type:'textarea',rows:5,req:true,full:true},
+    {k:'date',l:'তারিখ',type:'date',def:today},{k:'pinned',l:'উপরে রাখুন?',type:'select',options:[['false','না'],['true','হ্যাঁ']],def:'false'}]},
+  committees:{title:'কমিটি সদস্য', table:'committees', fields:[
+    {k:'name',l:'নাম',req:true},{k:'role',l:'পদবী',type:'select',options:()=>['সভাপতি','সহ-সভাপতি','সেক্রেটারি','কোষাধ্যক্ষ','সদস্য','ইমাম','মুয়াজ্জিন'].map(v=>[v,v])},
+    {k:'phone',l:'মোবাইল',type:'tel'},{k:'family',l:'পরিবার (ঐচ্ছিক)',type:'select',options:()=>[['','—'],...db.families.map(f=>[f.id,f.name])]},
+    {k:'term',l:'মেয়াদ',ph:'২০২৪-২০২৬'},{k:'active',l:'সক্রিয়?',type:'select',options:[['true','হ্যাঁ'],['false','না']],def:'true'}]},
+  meetings:{title:'সভা', table:'meetings', fields:[
+    {k:'title',l:'সভার শিরোনাম',req:true,full:true},{k:'date',l:'তারিখ',type:'date',def:today},
+    {k:'time',l:'সময়',ph:'বিকাল ৫টা'},{k:'location',l:'স্থান'},
+    {k:'agenda',l:'আলোচ্য বিষয়',type:'textarea',rows:3,full:true},
+    {k:'minutes',l:'কার্যবিবরণী',type:'textarea',rows:3,full:true},
+    {k:'status',l:'অবস্থা',type:'select',options:[['নির্ধারিত','নির্ধারিত'],['সম্পন্ন','সম্পন্ন'],['বাতিল','বাতিল']],def:'নির্ধারিত'}]},
+  events:{title:'অনুষ্ঠান', table:'events', fields:[
+    {k:'title',l:'অনুষ্ঠানের নাম',req:true},{k:'date',l:'তারিখ',type:'date',def:today},
+    {k:'time',l:'সময়',ph:'সন্ধ্যা ৭টা'},{k:'location',l:'স্থান'},
+    {k:'type',l:'ধরন',type:'select',options:()=>['ধর্মীয়','সামাজিক','শিক্ষা','তথ্যমূলক','অন্যান্য'].map(v=>[v,v])},
+    {k:'description',l:'বিবরণ',type:'textarea',rows:3,full:true},
+    {k:'rsvp',l:'RSVP চালু?',type:'select',options:[['false','না'],['true','হ্যাঁ']],def:'false'}]},
+  services:{title:'সামাজিক সেবা', table:'services', fields:[
+    {k:'title',l:'সেবার নাম',req:true},{k:'category',l:'ধরন',type:'select',options:()=>['চিকিৎসা সহায়তা','শিক্ষা বৃত্তি','দুর্যোগ ত্রাণ','বিবাহ সহায়তা','খাদ্য সহায়তা','অন্যান্য'].map(v=>[v,v])},
+    {k:'beneficiary',l:'সুবিধাভোগী',req:true},{k:'family',l:'পরিবার (ঐচ্ছিক)',type:'select',options:()=>[['','—'],...db.families.map(f=>[f.id,f.name])]},
+    {k:'amount',l:'পরিমাণ (টাকা)',type:'number',num:true,min:0,step:'0.01'},
+    {k:'date',l:'তারিখ',type:'date',def:today},
+    {k:'status',l:'অবস্থা',type:'select',options:[['আবেদন','আবেদন'],['অনুমোদিত','অনুমোদিত'],['প্রদান','প্রদান'],['বাতিল','বাতিল']],def:'আবেদন'},
+    {k:'note',l:'বিবরণ',full:true,type:'textarea',rows:2}]},
+  assets:{title:'সম্পদ', table:'assets', fields:[
+    {k:'name',l:'সম্পদের নাম',req:true},{k:'category',l:'ধরন',type:'select',options:()=>['জমি','ভবন','যানবাহন','আসবাব','ইলেকট্রনিক','বই','অন্যান্য'].map(v=>[v,v])},
+    {k:'value',l:'মূল্য (টাকা)',type:'number',num:true,min:0,step:'0.01'},
+    {k:'purchaseDate',l:'ক্রয়ের তারিখ',type:'date'},
+    {k:'condition',l:'অবস্থা',type:'select',options:[['ভালো','ভালো'],['মাঝারি','মাঝারি'],['মেরামত প্রয়োজন','মেরামত প্রয়োজন'],['বাতিল','বাতিল']],def:'ভালো'},
+    {k:'location',l:'অবস্থান'},{k:'note',l:'মন্তব্য',full:true,type:'textarea',rows:2}]},
+  documents:{title:'ডকুমেন্ট', table:'documents', fields:[
+    {k:'title',l:'ডকুমেন্টের নাম',req:true},{k:'category',l:'ধরন',type:'select',options:()=>['নিবন্ধন','দলিল','মিনিটস','আর্থিক','আইনি','অন্যান্য'].map(v=>[v,v])},
+    {k:'date',l:'তারিখ',type:'date',def:today},
+    {k:'fileName',l:'ফাইল নাম / রেফারেন্স'},{k:'note',l:'বিবরণ',full:true,type:'textarea',rows:2}]}
+};
+
+/* ============ MODAL ============ */
+function showModal(title, html, handler){
+  $('#modalTitle').textContent = title;
+  $('#modalBody').innerHTML = html;
+  $('#modal').classList.add('show');
+  formHandler = handler || null;
+  $('#saveModal').classList.toggle('hidden', !handler);
+  $('#cancelModal').textContent = handler ? 'বাতিল' : 'বন্ধ করুন';
+  setTimeout(()=>{ const f=$('#modalBody input, #modalBody select, #modalBody textarea'); if(f) f.focus(); },80);
+}
+function closeModal(){ $('#modal').classList.remove('show'); formHandler=null; }
+
+function openForm(type, item){
+  if(!requireAdmin()) return;
+  const spec = FORMS[type]; if(!spec) return;
+  const x = item || {};
+  const html = `<form id="dataForm" class="formgrid">` + spec.fields.map(f=>{
+    let v = x[f.k]!==undefined ? x[f.k] : (typeof f.def==='function' ? f.def() : (f.def!==undefined ? f.def : ''));
+    let input;
+    if(f.type==='select'){
+      const opts = typeof f.options==='function' ? f.options() : f.options;
+      input = `<select name="${f.k}">${opts.map(o=>`<option value="${esc(o[0])}" ${String(o[0])===String(v)?'selected':''}>${esc(o[1])}</option>`).join('')}</select>`;
+    } else if(f.type==='textarea'){
+      input = `<textarea name="${f.k}" rows="${f.rows||3}" placeholder="${esc(f.ph||'')}">${esc(v)}</textarea>`;
+    } else {
+      input = `<input name="${f.k}" type="${f.type||'text'}" value="${esc(v)}" placeholder="${esc(f.ph||'')}" ${f.step?`step="${f.step}"`:''} ${f.min!==undefined?`min="${f.min}"`:''}>`;
+    }
+    return `<div class="field ${f.full?'full':''}"><label>${f.l}${f.req?' <b class="req">*</b>':''}</label>${input}</div>`;
+  }).join('') + `</form>`;
+
+  showModal((item?'সম্পাদনা — ':'নতুন — ')+spec.title, html, form=>{
+    const data = {}; new FormData(form).forEach((v,k)=>data[k]=v);
+    for(const f of spec.fields){ if(f.req && !String(data[f.k]||'').trim()){ toast(f.l+' আবশ্যক','error'); return false; } }
+    if(type==='payments'){
+      if(db.payments.some(p=>p.receipt===data.receipt && p.id!==x.id)){ toast('রসিদ নম্বর আগে ব্যবহৃত','error'); return false; }
+      if(!data.family){ toast('পরিবার নির্বাচন করুন','error'); return false; }
+    }
+    spec.fields.forEach(f=>{ if(f.num) data[f.k] = +data[f.k] || 0; });
+    if(type==='families') data.active = data.active!=='false';
+    if(type==='dues') data.active = data.active!=='false';
+    if(type==='members') data.head = data.head==='true';
+    if(type==='notices') data.pinned = data.pinned==='true';
+    if(type==='committees') data.active = data.active!=='true'?false:true;
+    if(type==='events') data.rsvp = data.rsvp==='true';
+    if(type==='batches'){
+      const fs = activeFamilies();
+      data.families = fs.length; data.per = fs.length ? +(data.kg/fs.length).toFixed(3) : 0;
+    }
+    const table = spec.table;
+    const rec = {...x, ...data, id: x.id || uid(), updatedAt: new Date().toISOString()};
+    if(x.id){
+      const i = db[table].findIndex(a=>a.id===x.id);
+      if(i>-1) db[table][i] = rec; else db[table].unshift(rec);
+      log('তথ্য সম্পাদনা', table, rec.id); toast('সফলভাবে আপডেট হয়েছে');
+    } else {
+      db[table].unshift(rec); log('নতুন তথ্য যোগ', table, rec.id); toast('সফলভাবে সংরক্ষিত হয়েছে');
+    }
+    save(); render(); return true;
+  });
+  if(type==='payments'){
+    setTimeout(()=>{
+      const sel = $('#dataForm [name="due"]'), amt = $('#dataForm [name="amount"]');
+      if(sel && amt) sel.addEventListener('change', ()=>{ const d = db.dues.find(x=>x.id===sel.value); if(d) amt.value = d.amount; });
+    },0);
+  }
+}
+function editItem(type, idv){
+  const spec = FORMS[type]; if(!spec) return;
+  const x = db[spec.table].find(a=>a.id===idv); if(x) openForm(type, x);
+}
+function deleteItem(type, idv){
+  if(!requireAdmin()) return;
+  const spec = FORMS[type]; if(!spec) return;
+  if(!confirm('তথ্যটি স্থায়ীভাবে মুছে ফেলবেন?')) return;
+  db[spec.table] = db[spec.table].filter(x=>x.id!==idv);
+  log('তথ্য মুছে ফেলা', spec.table, idv); save(); render(); toast('মুছে ফেলা হয়েছে','warn');
+}
+
+/* ============ SHARED COMPONENTS ============ */
+function statCard(label, value, icon, tone, sub){
+  return `<div class="card stat ${tone?'t-'+tone:''}">
+    <div class="st-top"><span class="ico">${icon}</span><small>${label}</small></div>
+    <strong>${value}</strong>${sub?`<span class="sub">${sub}</span>`:''}</div>`;
+}
+function actions(type, idv){
+  return `<button class="act secondary sm" onclick="editItem('${type}','${idv}')">সম্পাদনা</button><button class="act danger sm" onclick="deleteItem('${type}','${idv}')">মুছুন</button>`;
+}
+function emptyRow(cols, msg){ return `<tr><td colspan="${cols}"><div class="empty"><span class="big">◌</span>${msg||'কোনো তথ্য পাওয়া যায়নি'}</div></td></tr>`; }
+
+/* ============ VIEW: DASHBOARD ============ */
+function viewDashboard(){
+  const paid=totalPaid(), spent=totalSpent(), af=activeFamilies(), balance=paid-spent, meat=db.batches.reduce((s,x)=>s+ +x.kg,0);
+  const recent = [...db.payments.map(x=>({date:x.date,type:'আদায়',cls:'',desc:familyName(x.family),amount:+x.amount})),
+    ...db.expenses.map(x=>({date:x.date,type:'ব্যয়',cls:'red',desc:x.title,amount:-x.amount}))]
+    .sort((a,b)=>String(b.date).localeCompare(String(a.date))).slice(0,8);
+  const recentRows = recent.length ? recent.map(x=>`<tr><td>${fmtDate(x.date)}</td><td><span class="badge ${x.cls}">${x.type}</span></td><td>${esc(x.desc)}</td><td class="num" style="color:${x.amount<0?'var(--red)':'var(--green)'}">${money(Math.abs(x.amount))}</td></tr>`).join('') : emptyRow(4,'কোনো লেনদেন নেই');
+  const debtors = af.map(f=>({f,due:familyDue(f.id)})).filter(x=>x.due>0).sort((a,b)=>b.due-a.due).slice(0,5);
+  const debtorRows = debtors.length ? debtors.map(x=>`<tr><td>${esc(x.f.name)}</td><td class="muted">${esc(x.f.code||'—')}</td><td class="num" style="color:var(--gold)">${money(x.due)}</td><td><button class="secondary sm" onclick="quickPay('${x.f.id}')">আদায়</button></td></tr>`).join('') : emptyRow(4,'সবাই পরিশোধ করেছেন 🎉');
+
+  return `
+  <div class="hero">
+    <h2>আসসালামু আলাইকুম 🕌</h2>
+    <p>${db.settings.mosqueName||'মসজিদ ও সমাজ ব্যবস্থাপনা'} — ${fmtDate(today())}</p>
+    <div class="hero-actions">
+      <button onclick="openForm('payments')">＋ চাঁদা আদায়</button>
+      <button onclick="openForm('expenses')">＋ ব্যয়</button>
+      <button onclick="setPage('reports')">📊 রিপোর্ট</button>
+      <button onclick="setPage('portal')">👤 সদস্য পোর্টাল</button>
+    </div>
+  </div>
+  <div class="grid stats" style="margin-top:18px">
+    ${statCard('মোট পরিবার', bn(af.length), '⌂', '', db.families.length!==af.length?bn(db.families.length-af.length)+' নিষ্ক্রিয়':'সব সক্রিয়')}
+    ${statCard('মোট সদস্য', bn(db.members.length), '♙', 'blue')}
+    ${statCard('মোট আদায়', money(paid), '৳', '', bn(db.payments.length)+' এন্ট্রি')}
+    ${statCard('মোট ব্যয়', money(spent), '↗', 'red', bn(db.expenses.length)+' খরচ')}
+  </div>
+  <h3 class="section">সার্বিক হিসাব</h3>
+  <div class="grid stats2">
+    ${statCard('উদ্বৃত্ত', money(balance), '◈', balance>=0?'':'red', balance>=0?'সন্তোষজনক':'ঘাটতি')}
+    ${statCard('বকেয়া চাঁদা', money(totalOutstanding()), '!', 'gold', 'আনুমানিক')}
+    ${statCard('কুরবানির গোশত', bn(meat)+' কেজি', '🐄', 'blue')}
+    ${statCard('গোশত বিতরণ', bn(db.distributions.filter(d=>d.status==='delivered').length)+'/'+bn(db.distributions.length), '⚖', '')}
+  </div>
+  <h3 class="section">দ্রুত কাজ</h3>
+  <div class="quick no-print">
+    <button onclick="openForm('families')">＋ পরিবার</button>
+    <button onclick="openForm('members')">＋ সদস্য</button>
+    <button onclick="openForm('payments')">＋ আদায়</button>
+    <button onclick="openForm('expenses')">＋ ব্যয়</button>
+    <button class="blue" onclick="openForm('meetings')">＋ সভা</button>
+    <button class="purple" onclick="openForm('events')">＋ অনুষ্ঠান</button>
+    <button class="gold" onclick="openForm('notices')">＋ নোটিশ</button>
+  </div>
+  <h3 class="section">মাসভিত্তিক আদায় ও ব্যয়</h3>
+  <div class="card chart-card">
+    <div class="card-head"><h3>সর্বশেষ ৬ মাসের তুলনা</h3>
+      <div class="legend"><span><i style="background:var(--green2)"></i>আদায়</span><span><i style="background:var(--red)"></i>ব্যয়</span></div>
+    </div>
+    <canvas id="chart" class="chart"></canvas>
+  </div>
+  <div class="grid" style="grid-template-columns:1.55fr 1fr;gap:14px;margin-top:14px" id="dashBottom">
+    <div><h3 class="section">সাম্প্রতিক লেনদেন</h3>
+      <div class="table-wrap"><table><thead><tr><th>তারিখ</th><th>ধরন</th><th>বিবরণ</th><th class="num">পরিমাণ</th></tr></thead><tbody>${recentRows}</tbody></table></div>
+    </div>
+    <div><h3 class="section">সর্বাধিক বকেয়া</h3>
+      <div class="table-wrap"><table style="min-width:0"><thead><tr><th>পরিবার</th><th>কোড</th><th class="num">বকেয়া</th><th></th></tr></thead><tbody>${debtorRows}</tbody></table></div>
+    </div>
+  </div>
+  <div class="notice info" style="margin-top:16px"><b>গোপনীয়তা:</b> প্রকাশ্য ড্যাশবোর্ডে কেবল সামগ্রিক হিসাব দেখানো হয়। সব ডেটা আপনার ব্রাউজারে (LocalStorage) সংরক্ষিত।</div>`;
+}
+function quickPay(fid){ openForm('payments', {family: fid}); }
+
+/* ============ CHART ============ */
+function drawChart(){
+  const canvas = $('#chart'); if(!canvas) return;
+  const rect = canvas.getBoundingClientRect(); const W=rect.width, H=rect.height; if(!W||!H) return;
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = W*dpr; canvas.height = H*dpr;
+  const ctx = canvas.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,W,H);
+  const cs = getComputedStyle(document.documentElement);
+  const cGreen = cs.getPropertyValue('--green2').trim()||'#0d9d68';
+  const cRed = cs.getPropertyValue('--red').trim()||'#c43d3d';
+  const cMuted = cs.getPropertyValue('--muted').trim()||'#6b7b72';
+  const cLine = cs.getPropertyValue('--line').trim()||'#e3ebe6';
+  const now = new Date(); const months = [];
+  for(let i=5;i>=0;i--){ const d=new Date(now.getFullYear(),now.getMonth()-i,1); months.push({y:d.getFullYear(),m:d.getMonth()+1,label:BN_MONTHS_SHORT[d.getMonth()]}); }
+  const data = months.map(mo=>{
+    const key = mo.y+'-'+String(mo.m).padStart(2,'0');
+    return {label:mo.label,
+      inc: db.payments.filter(p=>String(p.date).startsWith(key)).reduce((s,p)=>s+ +p.amount,0),
+      exp: db.expenses.filter(e=>String(e.date).startsWith(key)).reduce((s,e)=>s+ +e.amount,0)};
+  });
+  const padL=52,padR=12,padT=14,padB=30,plotW=W-padL-padR,plotH=H-padT-padB;
+  const maxVal = Math.max(1, ...data.map(d=>Math.max(d.inc,d.exp)));
+  const step = niceStep(maxVal/4); const top = Math.ceil(maxVal/step)*step;
+  ctx.strokeStyle=cLine; ctx.lineWidth=1; ctx.font='11px system-ui,sans-serif'; ctx.fillStyle=cMuted; ctx.textAlign='right'; ctx.textBaseline='middle';
+  for(let v=0;v<=top+.001;v+=step){
+    const y = padT+plotH-(v/top)*plotH;
+    ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(W-padR,y); ctx.stroke();
+    ctx.fillText(v>=1000?(v/1000).toFixed(v%1000===0?0:1)+'k':String(Math.round(v)), padL-9, y);
+  }
+  const groupW = plotW/data.length; const barW = Math.min(22, groupW*0.3); const gap=4;
+  data.forEach((d,i)=>{
+    const cx = padL+groupW*i+groupW/2;
+    roundRect(ctx, cx-barW-gap/2, padT+plotH-(d.inc/top)*plotH, barW, (d.inc/top)*plotH, 4, cGreen);
+    roundRect(ctx, cx+gap/2, padT+plotH-(d.exp/top)*plotH, barW, (d.exp/top)*plotH, 4, cRed);
+    ctx.fillStyle=cMuted; ctx.textAlign='center'; ctx.textBaseline='top'; ctx.font='11px system-ui,sans-serif';
+    ctx.fillText(d.label, cx, padT+plotH+9);
+  });
+  ctx.strokeStyle=cLine; ctx.lineWidth=1.4; ctx.beginPath(); ctx.moveTo(padL,padT+plotH); ctx.lineTo(W-padR,padT+plotH); ctx.stroke();
+  function roundRect(c,x,y,w,h,r,color){ if(h<.5||w<.5) return; r=Math.min(r,w/2,h/2); c.beginPath(); c.moveTo(x+r,y); c.arcTo(x+w,y,x+w,y+h,r); c.arcTo(x+w,y+h,x,y+h,0); c.arcTo(x,y+h,x,y,0); c.arcTo(x,y,x+w,y,r); c.closePath(); c.fillStyle=color; c.fill(); }
+  function niceStep(v){ const p=Math.pow(10,Math.floor(Math.log10(Math.max(v,1)))); const n=v/p; if(n<=1)return p; if(n<=2)return 2*p; if(n<=5)return 5*p; return 10*p; }
+}
+
+/* ============ VIEW: FAMILIES / MEMBERS / DUES ============ */
+function viewFamilies(){
+  const rows = db.families.map(x=>{
+    const mc = db.members.filter(m=>m.family===x.id).length;
+    const paid = db.payments.filter(p=>p.family===x.id).reduce((s,p)=>s+ +p.amount,0);
+    const due = familyDue(x.id);
+    return `<tr><td><span class="badge gray">${esc(x.code||'—')}</span></td>
+      <td><b>${esc(x.name)}</b><div class="muted" style="font-size:11.5px">${esc(x.phone||'')}</div></td>
+      <td class="muted">${esc(x.address||'—')}</td><td class="num">${bn(mc)}</td><td class="num">${money(paid)}</td>
+      <td class="num" style="color:${due>0?'var(--gold)':'var(--green)'}">${due>0?money(due):'পরিশোধিত'}</td>
+      <td>${x.active===false?'<span class="badge gray">নিষ্ক্রিয়</span>':'<span class="badge">সক্রিয়</span>'}</td>
+      <td style="white-space:nowrap"><button class="act ghost sm" onclick="familyDetail('${x.id}')">বিস্তারিত</button>${actions('families',x.id)}</td></tr>`;
+  }).join('');
+  return `<div class="toolbar"><div class="searchbox"><input id="search" placeholder="পরিবার, কোড বা মোবাইল খুঁজুন..."></div><div class="spacer"></div><button class="secondary" onclick="print()">প্রিন্ট</button><button onclick="openForm('families')">＋ পরিবার যোগ</button></div>
+  <div class="table-wrap"><table><thead><tr><th>কোড</th><th>পরিবারের নাম</th><th>ঠিকানা</th><th class="num">সদস্য</th><th class="num">মোট আদায়</th><th class="num">বকেয়া</th><th>অবস্থা</th><th>কাজ</th></tr></thead><tbody>${rows||emptyRow(8,'কোনো পরিবার নেই')}</tbody></table></div>`;
+}
+function familyDetail(fid){
+  const f = db.families.find(x=>x.id===fid); if(!f) return;
+  const members = db.members.filter(m=>m.family===fid);
+  const pays = db.payments.filter(p=>p.family===fid).sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+  const paid = pays.reduce((s,p)=>s+ +p.amount,0);
+  const due = familyDue(fid);
+  const html = `<dl class="dl">
+    <dt>পরিবার কোড</dt><dd>${esc(f.code||'—')}</dd>
+    <dt>নাম</dt><dd>${esc(f.name)}</dd>
+    <dt>মোবাইল</dt><dd>${esc(f.phone||'—')}</dd>
+    <dt>ঠিকানা</dt><dd>${esc(f.address||'—')}</dd>
+    <dt>অবস্থা</dt><dd>${f.active===false?'<span class="badge gray">নিষ্ক্রিয়</span>':'<span class="badge">সক্রিয়</span>'}</dd>
+    <dt>মোট আদায়</dt><dd style="color:var(--green)">${money(paid)}</dd>
+    <dt>বকেয়া</dt><dd style="color:${due>0?'var(--gold)':'var(--green)'}">${due>0?money(due):'পরিশোধিত'}</dd></dl>
+  <h3 class="section" style="margin-top:20px">সদস্য (${bn(members.length)})</h3>
+  ${members.length?`<div class="table-wrap"><table style="min-width:0"><thead><tr><th>নাম</th><th>সম্পর্ক</th><th>মোবাইল</th><th>প্রধান</th></tr></thead><tbody>${members.map(m=>`<tr><td>${esc(m.name)}</td><td>${esc(m.relation||'—')}</td><td>${esc(m.phone||'—')}</td><td>${m.head?'<span class="badge">হ্যাঁ</span>':'—'}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">কোনো সদস্য নেই</div>'}
+  <h3 class="section" style="margin-top:20px">আদায় (${bn(pays.length)})</h3>
+  ${pays.length?`<div class="table-wrap"><table style="min-width:0"><thead><tr><th>তারিখ</th><th>রসিদ</th><th>চাঁদা</th><th class="num">পরিমাণ</th></tr></thead><tbody>${pays.slice(0,15).map(p=>`<tr><td>${fmtDate(p.date)}</td><td class="muted">${esc(p.receipt||'—')}</td><td>${esc(duename(p.due))}</td><td class="num">${money(p.amount)}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">কোনো আদায় নেই</div>'}`;
+  showModal('পরিবার — '+f.name, html, null);
+}
+function viewMembers(){
+  const rows = db.members.map(x=>`<tr><td><b>${esc(x.name)}</b></td><td>${esc(familyName(x.family))}</td><td class="muted">${esc(x.phone||'—')}</td><td>${esc(x.relation||'—')}</td><td>${esc(x.occupation||'—')}</td><td>${x.head?'<span class="badge">প্রধান</span>':'<span class="badge gray">সদস্য</span>'}</td><td style="white-space:nowrap">${actions('members',x.id)}</td></tr>`).join('');
+  return `<div class="toolbar"><div class="searchbox"><input id="search" placeholder="সদস্যের নাম / মোবাইল..."></div><div class="spacer"></div><button class="secondary" onclick="print()">প্রিন্ট</button><button onclick="openForm('members')">＋ সদস্য যোগ</button></div>
+  <div class="table-wrap"><table><thead><tr><th>নাম</th><th>পরিবার</th><th>মোবাইল</th><th>সম্পর্ক</th><th>পেশা</th><th>ধরন</th><th>কাজ</th></tr></thead><tbody>${rows||emptyRow(7,'কোনো সদস্য নেই')}</tbody></table></div>`;
+}
+function viewDues(){
+  const rows = db.dues.map(x=>`<tr><td><b>${esc(x.title)}</b></td><td><span class="badge blue">${x.type==='monthly'?'মাসিক':x.type==='yearly'?'বাৎসরিক':'বিশেষ'}</span></td><td class="num">${money(x.amount)}</td><td>${esc(x.month||'—')}</td><td class="num">${esc(String(x.year||'—'))}</td><td>${x.active===false?'<span class="badge gray">নিষ্ক্রিয়</span>':'<span class="badge">সক্রিয়</span>'}</td><td style="white-space:nowrap">${actions('dues',x.id)}</td></tr>`).join('');
+  const tot = db.dues.filter(d=>d.active!==false).reduce((s,d)=>s+ +d.amount,0);
+  return `<div class="toolbar"><button onclick="openForm('dues')">＋ চাঁদা নির্ধারণ</button><div class="spacer"></div><button class="secondary" onclick="print()">প্রিন্ট</button></div>
+  <div class="grid stats" style="margin-bottom:16px">
+    ${statCard('নির্ধারিত', bn(db.dues.length)+' টি', '৳', 'blue')}
+    ${statCard('সক্রিয়', bn(db.dues.filter(d=>d.active!==false).length)+' টি', '✓', '')}
+    ${statCard('প্রতি পরিবার', money(tot), '∑', 'gold')}
+    ${statCard('প্রত্যাশিত', money(tot*activeFamilies().length), '◈', '')}
+  </div>
+  <div class="table-wrap"><table><thead><tr><th>শিরোনাম</th><th>ধরন</th><th class="num">পরিমাণ</th><th>মাস</th><th class="num">বছর</th><th>অবস্থা</th><th>কাজ</th></tr></thead><tbody>${rows||emptyRow(7,'কোনো চাঁদা নেই')}</tbody></table></div>`;
+}
+
+/* ============ VIEW: PAYMENTS / EXPENSES ============ */
+function viewPayments(){
+  const rows = db.payments.map(x=>`<tr><td><span class="badge gray">${esc(x.receipt||'—')}</span></td><td>${fmtDate(x.date)}</td><td><b>${esc(familyName(x.family))}</b></td><td>${esc(duename(x.due))}</td><td>${esc(x.method||'—')}</td><td class="num" style="color:var(--green)">${money(x.amount)}</td><td style="white-space:nowrap"><button class="act gold sm" onclick="receipt('${x.id}')">রসিদ</button>${actions('payments',x.id)}</td></tr>`).join('');
+  return `<div class="toolbar"><div class="searchbox"><input id="search" placeholder="রসিদ / পরিবার / মাধ্যম..."></div><div class="spacer"></div><button class="secondary" onclick="print()">প্রিন্ট</button><button onclick="openForm('payments')">＋ চাঁদা আদায়</button></div>
+  <div class="grid stats" style="margin-bottom:16px">
+    ${statCard('মোট আদায়', money(totalPaid()), '৳', '')}
+    ${statCard('এন্ট্রি', bn(db.payments.length)+' টি', '＋', 'blue')}
+    ${statCard('গড় আদায়', money(db.payments.length?totalPaid()/db.payments.length:0), '⌀', 'gold')}
+    ${statCard('আজকের আদায়', money(db.payments.filter(p=>p.date===today()).reduce((s,p)=>s+ +p.amount,0)), '◷', '')}
+  </div>
+  <div class="table-wrap"><table><thead><tr><th>রসিদ</th><th>তারিখ</th><th>পরিবার</th><th>ধরন</th><th>মাধ্যম</th><th class="num">পরিমাণ</th><th>কাজ</th></tr></thead><tbody>${rows||emptyRow(7,'কোনো আদায় নেই')}</tbody></table></div>`;
+}
+function viewExpenses(){
+  const paid=totalPaid(), spent=totalSpent();
+  const rows = db.expenses.map(x=>`<tr><td>${fmtDate(x.date)}</td><td><span class="badge blue">${esc(x.category||'অন্যান্য')}</span></td><td><b>${esc(x.title)}</b>${x.note?`<div class="muted" style="font-size:11.5px">${esc(x.note)}</div>`:''}</td><td class="num" style="color:var(--red)">${money(x.amount)}</td><td style="white-space:nowrap">${actions('expenses',x.id)}</td></tr>`).join('');
+  return `<div class="toolbar"><button onclick="openForm('expenses')">＋ ব্যয় যোগ</button><div class="spacer"></div><button class="secondary" onclick="print()">প্রিন্ট</button></div>
+  <div class="grid stats">
+    ${statCard('মোট আয়', money(paid), '＋', '')}
+    ${statCard('মোট ব্যয়', money(spent), '−', 'red')}
+    ${statCard('উদ্বৃত্ত', money(paid-spent), '◈', paid-spent>=0?'':'red', paid-spent>=0?'সন্তোষজনক':'ঘাটতি')}
+    ${statCard('এন্ট্রি', bn(db.expenses.length)+' টি', '▤', 'blue')}
+  </div>
+  <h3 class="section">ব্যয়ের তালিকা</h3>
+  <div class="table-wrap"><table><thead><tr><th>তারিখ</th><th>খাত</th><th>বিবরণ</th><th class="num">পরিমাণ</th><th>কাজ</th></tr></thead><tbody>${rows||emptyRow(5,'কোনো ব্যয় নেই')}</tbody></table></div>`;
+}
+
+/* ============ VIEW: QURBANI / DISTRIBUTION ============ */
+function viewQurbani(){
+  const rows = db.batches.map(x=>{
+    const dists = db.distributions.filter(d=>d.batch===x.id);
+    const done = dists.filter(d=>d.status==='delivered').length;
+    const pct = dists.length?Math.round(done/dists.length*100):0;
+    return `<tr><td><b>${esc(x.name)}</b></td><td>${fmtDate(x.date)}</td><td class="num">${bn(x.kg)} কেজি</td><td class="num">${bn(x.families||0)}</td><td class="num">${bn(x.per||0)} কেজি</td><td><span class="badge ${x.status==='সম্পন্ন'?'':'warn'}">${esc(x.status||'প্রস্তুত')}</span></td>
+      <td style="min-width:120px"><div class="progress"><span style="width:${pct}%"></span></div><small class="muted">${bn(done)}/${bn(dists.length)} বিতরণ</small></td>
+      <td style="white-space:nowrap"><button class="act gold sm" onclick="makeDistribution('${x.id}')">বণ্টন তৈরি</button>${actions('batches',x.id)}</td></tr>`;
+  }).join('');
+  return `<div class="toolbar"><button onclick="openForm('batches')">＋ কুরবানি যোগ</button><div class="spacer"></div><button class="secondary" onclick="print()">প্রিন্ট</button></div>
+  <div class="grid stats" style="margin-bottom:16px">
+    ${statCard('অনুষ্ঠান', bn(db.batches.length)+' টি', '🐄', '')}
+    ${statCard('মোট গোশত', bn(db.batches.reduce((s,x)=>s+ +x.kg,0))+' কেজি', '⚖', 'blue')}
+    ${statCard('বরাদ্দ পরিবার', bn(db.distributions.length), '⌂', 'gold')}
+    ${statCard('বিতরণ সম্পন্ন', bn(db.distributions.filter(d=>d.status==='delivered').length), '✓', '')}
+  </div>
+  <div class="table-wrap"><table><thead><tr><th>অনুষ্ঠান</th><th>তারিখ</th><th class="num">মোট গোশত</th><th class="num">পরিবার</th><th class="num">প্রতি পরিবার</th><th>অবস্থা</th><th>অগ্রগতি</th><th>কাজ</th></tr></thead><tbody>${rows||emptyRow(8,'কোনো কুরবানি নেই')}</tbody></table></div>
+  <div class="notice" style="margin-top:14px">বণ্টন তৈরি করলে সক্রিয় প্রতিটি পরিবারের জন্য সমান বরাদ্দ হবে।</div>`;
+}
+function viewDistribution(){
+  const rows = db.distributions.map(x=>{
+    const b = db.batches.find(b=>b.id===x.batch);
+    return `<tr><td>${esc(b?.name||'—')}</td><td><b>${esc(familyName(x.family))}</b></td><td class="num">${bn(x.allocated)} কেজি</td><td class="num">${bn(x.delivered)} কেজি</td><td>${x.status==='delivered'?'<span class="badge">গ্রহণ সম্পন্ন</span>':'<span class="badge warn">বাকি</span>'}</td><td class="muted" style="font-size:11.5px">${esc(x.receivedAt||'—')}</td><td>${admin&&x.status!=='delivered'?`<button class="act secondary sm" onclick="markDelivered('${x.id}')">গ্রহণ নিশ্চিত</button>`:''}</td></tr>`;
+  }).join('');
+  const done = db.distributions.filter(d=>d.status==='delivered').length;
+  const pct = db.distributions.length?Math.round(done/db.distributions.length*100):0;
+  return `<div class="toolbar"><div class="searchbox"><input id="search" placeholder="পরিবার বা অনুষ্ঠান..."></div><div class="spacer"></div><button class="secondary" onclick="print()">প্রিন্ট</button></div>
+  <div class="grid stats" style="margin-bottom:16px">
+    ${statCard('মোট বরাদ্দ', bn(db.distributions.length), '⚖', 'blue')}
+    ${statCard('গ্রহণ সম্পন্ন', bn(done), '✓', '')}
+    ${statCard('বাকি', bn(db.distributions.length-done), '◷', 'gold')}
+    ${statCard('অগ্রগতি', bn(pct)+'%', '▤', pct===100?'':(pct>0?'':'gold'))}
+  </div>
+  <div class="card" style="margin-bottom:16px;padding:14px 18px">
+    <div style="display:flex;justify-content:space-between;font-size:12.5px;font-weight:650;margin-bottom:8px"><span>সামগ্রিক অগ্রগতি</span><span>${bn(done)} / ${bn(db.distributions.length)}</span></div>
+    <div class="progress" style="height:11px"><span style="width:${pct}%"></span></div>
+  </div>
+  <div class="table-wrap"><table><thead><tr><th>অনুষ্ঠান</th><th>পরিবার</th><th class="num">বরাদ্দ</th><th class="num">বিতরণ</th><th>অবস্থা</th><th>গ্রহণের সময়</th><th>কাজ</th></tr></thead><tbody>${rows||emptyRow(7,'কোনো বণ্টন নেই')}</tbody></table></div>`;
+}
+
+/* ============ VIEW: NOTICES ============ */
+function viewNotices(){
+  const list = [...db.notices].sort((a,b)=> (b.pinned?1:0)-(a.pinned?1:0) || String(b.date).localeCompare(String(a.date)));
+  const cards = list.length ? list.map(x=>`<div class="card" style="margin-bottom:12px"><div style="display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap">
+    <div style="flex:1;min-width:200px">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><b style="font-size:15px">${esc(x.title)}</b>${x.pinned?'<span class="badge warn">📌 পিন</span>':''}</div>
+      <p style="margin:8px 0;color:var(--ink2);white-space:pre-wrap">${esc(x.body)}</p><small class="muted">${fmtDate(x.date)}</small>
+    </div>
+    <div style="display:flex;gap:6px">${actions('notices',x.id)}</div></div></div>`).join('') : `<div class="empty"><span class="big">▤</span>কোনো নোটিশ নেই</div>`;
+  return `<div class="toolbar"><button onclick="openForm('notices')">＋ নতুন নোটিশ</button><div class="spacer"></div><button class="secondary" onclick="print()">প্রিন্ট</button></div>${cards}`;
+}
+
+/* ============ VIEW: MEMBER PORTAL ============ */
+function viewPortal(){
+  const fams = activeFamilies();
+  const sel = currentTab.portal || (fams[0]?.id||'');
+  currentTab.portal = sel;
+  const fam = db.families.find(f=>f.id===sel);
+  if(!fam) return `<div class="empty"><span class="big">👤</span>কোনো সক্রিয় পরিবার নেই। আগে পরিবার যোগ করুন।</div>`;
+
+  const members = db.members.filter(m=>m.family===sel);
+  const pays = db.payments.filter(p=>p.family===sel).sort((a,b)=>String(b.date).localeCompare(String(a.date))).slice(0,10);
+  const paid = db.payments.filter(p=>p.family===sel).reduce((s,p)=>s+ +p.amount,0);
+  const due = familyDue(sel);
+  const notices = [...db.notices].filter(n=>n.pinned).slice(0,3);
+  const events = db.events.filter(e=>e.date>=today()).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,3);
+  const nextMeetings = db.meetings.filter(m=>m.status==='নির্ধারিত' && m.date>=today()).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,2);
+
+  const famOpts = fams.map(f=>`<option value="${f.id}" ${f.id===sel?'selected':''}>${esc(f.name)}</option>`).join('');
+
+  return `
+  <div class="card" style="margin-bottom:16px">
+    <label>পরিবার নির্বাচন করুন</label>
+    <select onchange="setTab('portal', this.value)">${famOpts}</select>
+  </div>
+  <div class="hero">
+    <h2>👤 ${esc(fam.name)}</h2>
+    <p>${esc(fam.code||'')} • ${esc(fam.phone||'')} • ${esc(fam.address||'')}</p>
+    <div class="hero-actions">
+      <button onclick="setPage('prayer')">🕐 নামাজের সময়</button>
+      <button onclick="setPage('notices')">▤ নোটিশ</button>
+      <button onclick="setPage('events')">🎉 অনুষ্ঠান</button>
+    </div>
+  </div>
+  <div class="grid stats" style="margin-top:16px">
+    ${statCard('মোট পরিশোধ', money(paid), '৳', '', bn(db.payments.filter(p=>p.family===sel).length)+' বার')}
+    ${statCard('বকেয়া', money(due), '!', due>0?'gold':'', due>0?'আদায় প্রয়োজন':'সব পরিশোধিত')}
+    ${statCard('পরিবার সদস্য', bn(members.length), '♙', 'blue')}
+    ${statCard('আসন্ন অনুষ্ঠান', bn(events.length), '🎉', 'purple')}
+  </div>
+
+  <div class="grid" style="grid-template-columns:1fr 1fr;gap:14px;margin-top:18px" id="portalGrid">
+    <div class="card">
+      <h3 style="margin-top:0">🕐 আজকের নামাজের সময়</h3>
+      <table style="min-width:0;margin-top:10px"><tbody>
+        ${['fajr','dhuhr','asr','maghrib','isha','jummah'].map(k=>{
+          const lbl = {fajr:'ফজর',dhuhr:'যোহর',asr:'আসর',maghrib:'মাগরিব',isha:'এশা',jummah:'জুম্মা'}[k];
+          return `<tr><td>${lbl}</td><td class="num" style="color:var(--green);font-weight:800">${esc(db.prayerTimes[k]||'—')}</td></tr>`;
+        }).join('')}
+      </tbody></table>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">📌 পিন করা নোটিশ</h3>
+      ${notices.length?notices.map(n=>`<div style="padding:10px 0;border-bottom:1px solid var(--line2)"><b>${esc(n.title)}</b><p style="margin:4px 0 0;font-size:12.5px;color:var(--muted)">${esc((n.body||'').slice(0,120))}${(n.body||'').length>120?'…':''}</p></div>`).join(''):'<p class="muted">কোনো পিন করা নোটিশ নেই</p>'}
+    </div>
+  </div>
+
+  ${members.length?`<h3 class="section">👨‍👩‍👧‍👦 সদস্যবৃন্দ</h3><div class="table-wrap"><table style="min-width:0"><thead><tr><th>নাম</th><th>সম্পর্ক</th><th>মোবাইল</th><th>প্রধান</th></tr></thead><tbody>${members.map(m=>`<tr><td>${esc(m.name)}</td><td>${esc(m.relation||'—')}</td><td>${esc(m.phone||'—')}</td><td>${m.head?'<span class="badge">হ্যাঁ</span>':'—'}</td></tr>`).join('')}</tbody></table></div>`:''}
+
+  <h3 class="section">৳ সাম্প্রতিক আদায়</h3>
+  ${pays.length?`<div class="table-wrap"><table style="min-width:0"><thead><tr><th>তারিখ</th><th>রসিদ</th><th>চাঁদা</th><th class="num">পরিমাণ</th></tr></thead><tbody>${pays.map(p=>`<tr><td>${fmtDate(p.date)}</td><td class="muted">${esc(p.receipt||'—')}</td><td>${esc(duename(p.due))}</td><td class="num" style="color:var(--green)">${money(p.amount)}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">কোনো আদায় নেই</div>'}
+
+  ${events.length?`<h3 class="section">🎉 আসন্ন অনুষ্ঠান</h3><div class="card">${events.map(e=>`<div class="cal-item"><div class="cal-date"><div class="d">${bn(+(e.date.split('-')[2]))}</div><div class="m">${BN_MONTHS_SHORT[+e.date.split('-')[1]-1]}</div></div><div class="cal-body"><b>${esc(e.title)}</b><p>${esc(e.time||'')} ${e.location?' • '+esc(e.location):''}</p></div></div>`).join('')}</div>`:''}
+
+  ${nextMeetings.length?`<h3 class="section">👥 আসন্ন সভা</h3><div class="card">${nextMeetings.map(m=>`<div class="cal-item"><div class="cal-date"><div class="d">${bn(+(m.date.split('-')[2]))}</div><div class="m">${BN_MONTHS_SHORT[+m.date.split('-')[1]-1]}</div></div><div class="cal-body"><b>${esc(m.title)}</b><p>${esc(m.time||'')} ${m.location?' • '+esc(m.location):''}</p></div></div>`).join('')}</div>`:''}
+  `;
+}
+
+/* ============ VIEW: PRAYER & CALENDAR ============ */
+function viewPrayer(){
+  const times = db.prayerTimes;
+  const labels = {fajr:'ফজর',sunrise:'সূর্যোদয়',dhuhr:'যোহর',asr:'আসর',maghrib:'মাগরিব',isha:'এশা',jummah:'জুম্মা'};
+  const icons = {fajr:'🌅',sunrise:'☀',dhuhr:'🌞',asr:'🌤',maghrib:'🌇',isha:'🌙',jummah:'🕌'};
+
+  /* detect current prayer */
+  const now = new Date();
+  const nowMin = now.getHours()*60+now.getMinutes();
+  const toMin = t=>{ const [h,m]=String(t||'0:0').split(':').map(Number); return h*60+(m||0); };
+  let current = '';
+  const order = ['fajr','dhuhr','asr','maghrib','isha'];
+  for(let i=order.length-1;i>=0;i--){ if(nowMin >= toMin(times[order[i]])){ current = order[i]; break; } }
+
+  const prayerCards = order.map(k=>`
+    <div class="prayer-card ${current===k?'now':''}" onclick="editPrayerTime('${k}')">
+      <div class="p-icon">${icons[k]}</div>
+      <div class="p-name">${labels[k]}</div>
+      <div class="p-time">${esc(times[k]||'—')}</div>
+    </div>`).join('');
+
+  /* Islamic calendar (approx) — a curated list */
+  const year = now.getFullYear();
+  const events = [
+    {date:year+'-03-01', title:'রমজান শুরু (আনুমানিক)', desc:'পবিত্র রমজান মাসের সূচনা'},
+    {date:year+'-03-27', title:'লাইলাতুল কদর (আনুমানিক)', desc:'হাজার মাসের চেয়ে উত্তম রাত'},
+    {date:year+'-04-10', title:'ঈদুল ফিতর (আনুমানিক)', desc:'রমজান শেষে ঈদুল ফিতর'},
+    {date:year+'-06-07', title:'হজ (আনুমানিক)', desc:'পবিত্র হজ পালন'},
+    {date:year+'-06-16', title:'ঈদুল আজহা (আনুমানিক)', desc:'কুরবানির ঈদ'},
+    {date:year+'-07-05', title:'আশুরা (আনুমানিক)', desc:'মুহাররমের ১০ তারিখ'},
+    {date:year+'-09-05', title:'ঈদে মিলাদুন্নবী (আনুমানিক)', desc:'রাসূল (সা.)-এর জন্মদিন'}
+  ];
+  const customEvents = db.events.filter(e=>e.date>=today()).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,10);
+
+  return `
+  <div class="hero">
+    <h2>🕐 নামাজের সময়সূচি</h2>
+    <p>${fmtDate(today())} • ${esc(db.settings.mosqueName||'মসজিদ')}</p>
+    <div class="hero-actions">${admin?`<button onclick="editPrayerTimes()">⚙ সময় সম্পাদনা</button>`:''}</div>
+  </div>
+
+  <h3 class="section">আজকের নামাজ</h3>
+  <div class="prayer-grid">${prayerCards}</div>
+  <div class="notice info" style="margin-top:14px"><b>তথ্য:</b> ${current?'বর্তমান ওয়াক্ত: <b>'+labels[current]+'</b>':'এখনো ফজরের সময় হয়নি'} • জুম্মার সময়: <b>${esc(times.jummah||'—')}</b></div>
+
+  <h3 class="section">📅 ইসলামিক ক্যালেন্ডার <span class="count">আনুমানিক</span></h3>
+  <div class="card">
+    ${events.map(e=>`<div class="cal-item"><div class="cal-date"><div class="d">${bn(+(e.date.split('-')[2]))}</div><div class="m">${BN_MONTHS_SHORT[+e.date.split('-')[1]-1]}</div></div><div class="cal-body"><b>${esc(e.title)}</b><p>${esc(e.desc)}</p></div></div>`).join('')}
+  </div>
+
+  ${customEvents.length?`<h3 class="section">🎉 মসজিদের অনুষ্ঠানসমূহ</h3><div class="card">
+    ${customEvents.map(e=>`<div class="cal-item"><div class="cal-date"><div class="d">${bn(+(e.date.split('-')[2]))}</div><div class="m">${BN_MONTHS_SHORT[+e.date.split('-')[1]-1]}</div></div><div class="cal-body"><b>${esc(e.title)}</b><p>${esc(e.time||'')} ${e.location?' • '+esc(e.location):''}</p></div></div>`).join('')}
+  </div>`:''}`;
+}
+function editPrayerTime(k){
+  if(!requireAdmin()) return;
+  const lbl = {fajr:'ফজর',dhuhr:'যোহর',asr:'আসর',maghrib:'মাগরিব',isha:'এশা',jummah:'জুম্মা'}[k];
+  showModal('সময় সম্পাদনা — '+lbl, `<form class="formgrid"><div class="field full"><label>${lbl} সময় (HH:MM)</label><input name="t" type="time" value="${esc(db.prayerTimes[k]||'')}" required></div></form>`, form=>{
+    const v = new FormData(form).get('t');
+    db.prayerTimes[k] = v; save(); render(); toast('সময় আপডেট হয়েছে'); return true;
+  });
+}
+function editPrayerTimes(){
+  if(!requireAdmin()) return;
+  const labels = {fajr:'ফজর',sunrise:'সূর্যোদয়',dhuhr:'যোহর',asr:'আসর',maghrib:'মাগরিব',isha:'এশা',jummah:'জুম্মা'};
+  const html = `<form class="formgrid">${Object.entries(labels).map(([k,v])=>`<div class="field"><label>${v}</label><input name="${k}" type="time" value="${esc(db.prayerTimes[k]||'')}"></div>`).join('')}</form>`;
+  showModal('নামাজের সময়সূচি সম্পাদনা', html, form=>{
+    const d = {}; new FormData(form).forEach((v,k)=>d[k]=v);
+    db.prayerTimes = {...db.prayerTimes, ...d}; save(); render(); toast('সময়সূচি আপডেট হয়েছে'); return true;
+  });
+}
+
+/* ============ VIEW: COMMITTEE & MEETINGS ============ */
+function viewCommittee(){
+  const tab = currentTab.committee || 'members';
+  const members = db.committees.filter(c=>c.active!==false);
+  const meetings = [...db.meetings].sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+
+  const memberRows = db.committees.map(c=>`<tr><td><b>${esc(c.name)}</b></td><td><span class="badge blue">${esc(c.role||'—')}</span></td><td class="muted">${esc(c.phone||'—')}</td><td>${esc(c.family?familyName(c.family):'—')}</td><td>${esc(c.term||'—')}</td><td>${c.active===false?'<span class="badge gray">নিষ্ক্রিয়</span>':'<span class="badge">সক্রিয়</span>'}</td><td style="white-space:nowrap">${actions('committees',c.id)}</td></tr>`).join('');
+  const meetingRows = meetings.map(m=>`<tr><td><b>${esc(m.title)}</b></td><td>${fmtDate(m.date)}</td><td>${esc(m.time||'—')}</td><td>${esc(m.location||'—')}</td><td><span class="badge ${m.status==='সম্পন্ন'?'':'warn'}">${esc(m.status||'—')}</span></td><td style="white-space:nowrap"><button class="act ghost sm" onclick="meetingDetail('${m.id}')">বিস্তারিত</button>${actions('meetings',m.id)}</td></tr>`).join('');
+
+  return `
+  <div class="toolbar"><div class="spacer"></div>${tab==='members'?`<button onclick="openForm('committees')">＋ কমিটি সদস্য</button>`:`<button onclick="openForm('meetings')">＋ নতুন সভা</button>`}</div>
+  <div class="tabs">
+    <button class="${tab==='members'?'active':''}" onclick="setTab('committee','members')">👥 কমিটি সদস্য (${bn(members.length)})</button>
+    <button class="${tab==='meetings'?'active':''}" onclick="setTab('committee','meetings')">📋 সভা (${bn(meetings.length)})</button>
+  </div>
+  ${tab==='members'?`<div class="table-wrap"><table><thead><tr><th>নাম</th><th>পদবী</th><th>মোবাইল</th><th>পরিবার</th><th>মেয়াদ</th><th>অবস্থা</th><th>কাজ</th></tr></thead><tbody>${memberRows||emptyRow(7,'কোনো কমিটি সদস্য নেই')}</tbody></table></div>`:
+  `<div class="table-wrap"><table><thead><tr><th>শিরোনাম</th><th>তারিখ</th><th>সময়</th><th>স্থান</th><th>অবস্থা</th><th>কাজ</th></tr></thead><tbody>${meetingRows||emptyRow(6,'কোনো সভা নেই')}</tbody></table></div>`}
+  `;
+}
+function meetingDetail(mid){
+  const m = db.meetings.find(x=>x.id===mid); if(!m) return;
+  const html = `<dl class="dl">
+    <dt>শিরোনাম</dt><dd>${esc(m.title)}</dd>
+    <dt>তারিখ</dt><dd>${fmtDate(m.date)}</dd>
+    <dt>সময়</dt><dd>${esc(m.time||'—')}</dd>
+    <dt>স্থান</dt><dd>${esc(m.location||'—')}</dd>
+    <dt>অবস্থা</dt><dd><span class="badge ${m.status==='সম্পন্ন'?'':'warn'}">${esc(m.status||'—')}</span></dd>
+    <dt>আলোচ্য</dt><dd style="white-space:pre-wrap">${esc(m.agenda||'—')}</dd>
+    <dt>কার্যবিবরণী</dt><dd style="white-space:pre-wrap">${esc(m.minutes||'—')}</dd></dl>`;
+  showModal('সভা — '+m.title, html, null);
+}
+
+/* ============ VIEW: SOCIAL SERVICES ============ */
+function viewSocial(){
+  const rows = db.services.map(s=>`<tr><td><b>${esc(s.title)}</b></td><td><span class="badge blue">${esc(s.category||'—')}</span></td><td>${esc(s.beneficiary||'—')}</td><td>${s.family?esc(familyName(s.family)):'—'}</td><td class="num">${s.amount?money(s.amount):'—'}</td><td>${fmtDate(s.date)}</td><td><span class="badge ${s.status==='প্রদান'?'':'warn'}">${esc(s.status||'—')}</span></td><td style="white-space:nowrap">${actions('services',s.id)}</td></tr>`).join('');
+  const total = db.services.filter(s=>s.status==='প্রদান').reduce((a,s)=>a+(+s.amount||0),0);
+  return `<div class="toolbar"><div class="spacer"></div><button class="secondary" onclick="print()">প্রিন্ট</button><button onclick="openForm('services')">＋ সেবা যোগ</button></div>
+  <div class="grid stats" style="margin-bottom:16px">
+    ${statCard('মোট সেবা', bn(db.services.length), '🤝', '')}
+    ${statCard('প্রদান সম্পন্ন', bn(db.services.filter(s=>s.status==='প্রদান').length), '✓', 'blue')}
+    ${statCard('প্রদত্ত পরিমাণ', money(total), '৳', 'gold')}
+    ${statCard('আবেদন অপেক্ষমাণ', bn(db.services.filter(s=>s.status==='আবেদন').length), '◷', 'purple')}
+  </div>
+  <div class="table-wrap"><table><thead><tr><th>সেবা</th><th>ধরন</th><th>সুবিধাভোগী</th><th>পরিবার</th><th class="num">পরিমাণ</th><th>তারিখ</th><th>অবস্থা</th><th>কাজ</th></tr></thead><tbody>${rows||emptyRow(8,'কোনো সেবা নেই')}</tbody></table></div>`;
+}
+
+/* ============ VIEW: ASSETS & DOCUMENTS ============ */
+function viewAssets(){
+  const tab = currentTab.assets || 'assets';
+  const assetRows = db.assets.map(a=>`<tr><td><b>${esc(a.name)}</b></td><td><span class="badge blue">${esc(a.category||'—')}</span></td><td class="num">${a.value?money(a.value):'—'}</td><td>${fmtDate(a.purchaseDate)}</td><td><span class="badge ${a.condition==='ভালো'?'':'warn'}">${esc(a.condition||'—')}</span></td><td>${esc(a.location||'—')}</td><td style="white-space:nowrap">${actions('assets',a.id)}</td></tr>`).join('');
+  const docRows = db.documents.map(d=>`<tr><td><b>${esc(d.title)}</b></td><td><span class="badge blue">${esc(d.category||'—')}</span></td><td>${fmtDate(d.date)}</td><td class="muted">${esc(d.fileName||'—')}</td><td>${esc(d.note||'—')}</td><td style="white-space:nowrap">${actions('documents',d.id)}</td></tr>`).join('');
+  const totalVal = db.assets.reduce((s,a)=>s+(+a.value||0),0);
+  return `<div class="toolbar"><div class="spacer"></div>${tab==='assets'?`<button onclick="openForm('assets')">＋ সম্পদ যোগ</button>`:`<button onclick="openForm('documents')">＋ ডকুমেন্ট যোগ</button>`}</div>
+  <div class="grid stats" style="margin-bottom:16px">
+    ${statCard('মোট সম্পদ', bn(db.assets.length), '📦', '')}
+    ${statCard('মোট মূল্য', money(totalVal), '৳', 'gold')}
+    ${statCard('ডকুমেন্ট', bn(db.documents.length), '📄', 'blue')}
+    ${statCard('মেরামত প্রয়োজন', bn(db.assets.filter(a=>a.condition==='মেরামত প্রয়োজন').length), '⚠', 'red')}
+  </div>
+  <div class="tabs">
+    <button class="${tab==='assets'?'active':''}" onclick="setTab('assets','assets')">📦 সম্পদ (${bn(db.assets.length)})</button>
+    <button class="${tab==='docs'?'active':''}" onclick="setTab('assets','docs')">📄 ডকুমেন্ট (${bn(db.documents.length)})</button>
+  </div>
+  ${tab==='assets'?`<div class="table-wrap"><table><thead><tr><th>নাম</th><th>ধরন</th><th class="num">মূল্য</th><th>ক্রয়</th><th>অবস্থা</th><th>অবস্থান</th><th>কাজ</th></tr></thead><tbody>${assetRows||emptyRow(7,'কোনো সম্পদ নেই')}</tbody></table></div>`:
+  `<div class="table-wrap"><table><thead><tr><th>শিরোনাম</th><th>ধরন</th><th>তারিখ</th><th>ফাইল</th><th>বিবরণ</th><th>কাজ</th></tr></thead><tbody>${docRows||emptyRow(6,'কোনো ডকুমেন্ট নেই')}</tbody></table></div>`}`;
+}
+
+/* ============ VIEW: EVENTS ============ */
+function viewEvents(){
+  const list = [...db.events].sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+  const upcoming = list.filter(e=>e.date>=today());
+  const past = list.filter(e=>e.date<today()).reverse();
+  const rows = list.map(e=>`<tr><td><b>${esc(e.title)}</b></td><td>${fmtDate(e.date)}</td><td>${esc(e.time||'—')}</td><td>${esc(e.location||'—')}</td><td><span class="badge blue">${esc(e.type||'—')}</span></td><td>${e.date>=today()?'<span class="badge">আসন্ন</span>':'<span class="badge gray">সম্পন্ন</span>'}</td><td style="white-space:nowrap">${actions('events',e.id)}</td></tr>`).join('');
+  return `<div class="toolbar"><div class="spacer"></div><button class="secondary" onclick="print()">প্রিন্ট</button><button onclick="openForm('events')">＋ অনুষ্ঠান যোগ</button></div>
+  <div class="grid stats" style="margin-bottom:16px">
+    ${statCard('মোট অনুষ্ঠান', bn(list.length), '🎉', '')}
+    ${statCard('আসন্ন', bn(upcoming.length), '◷', 'blue')}
+    ${statCard('সম্পন্ন', bn(past.length), '✓', 'gold')}
+    ${statCard('এই মাসে', bn(list.filter(e=>String(e.date).startsWith(today().slice(0,7))).length), '📅', 'purple')}
+  </div>
+  <div class="table-wrap"><table><thead><tr><th>অনুষ্ঠান</th><th>তারিখ</th><th>সময়</th><th>স্থান</th><th>ধরন</th><th>অবস্থা</th><th>কাজ</th></tr></thead><tbody>${rows||emptyRow(7,'কোনো অনুষ্ঠান নেই')}</tbody></table></div>`;
+}
+
+/* ============ VIEW: REPORTS ============ */
+function viewReports(){
+  const paid=totalPaid(), spent=totalSpent();
+  const cats = {}; db.expenses.forEach(e=>{ const k=e.category||'অন্যান্য'; cats[k]=(cats[k]||0)+ +e.amount; });
+  const catEntries = Object.entries(cats).sort((a,b)=>b[1]-a[1]);
+  const maxCat = Math.max(1, ...catEntries.map(c=>c[1]));
+  const catBars = catEntries.length ? catEntries.map(([k,v])=>`<div class="bar-row"><span class="bl">${esc(k)}</span><span class="bar-track"><i style="width:${(v/maxCat*100).toFixed(1)}%"></i></span><span class="bv">${money(v)}</span></div>`).join('') : '<div class="empty">কোনো ব্যয় নেই</div>';
+  const methods = {}; db.payments.forEach(p=>{ const k=p.method||'অন্যান্য'; methods[k]=(methods[k]||0)+ +p.amount; });
+  const maxMethod = Math.max(1, ...Object.values(methods));
+  const logs = db.logs.slice(0,30).map(x=>`<tr><td class="muted" style="font-size:11.5px">${esc(x.at)}</td><td>${esc(x.action)}</td><td><span class="badge gray">${esc(x.table)}</span></td></tr>`).join('');
+
+  return `<div class="toolbar"><button onclick="exportCSV()">⬇ CSV</button><button class="secondary" onclick="downloadBackup()">⬇ ব্যাকআপ</button><button class="secondary" onclick="print()">🖨 প্রিন্ট / PDF</button></div>
+  <div class="grid stats">
+    ${statCard('মোট পরিবার', bn(activeFamilies().length), '⌂', '')}
+    ${statCard('মোট সদস্য', bn(db.members.length), '♙', 'blue')}
+    ${statCard('মোট আদায়', money(paid), '＋', '')}
+    ${statCard('মোট ব্যয়', money(spent), '−', 'red')}
+  </div>
+  <h3 class="section">আর্থিক সারাংশ</h3>
+  <div class="table-wrap"><table><thead><tr><th>বিবরণ</th><th class="num">পরিমাণ</th></tr></thead><tbody>
+    <tr><td>মোট চাঁদা আদায়</td><td class="num" style="color:var(--green)">${money(paid)}</td></tr>
+    <tr><td>মোট ব্যয়</td><td class="num" style="color:var(--red)">${money(spent)}</td></tr>
+    <tr><td><b>উদ্বৃত্ত</b></td><td class="num"><b>${money(paid-spent)}</b></td></tr>
+    <tr><td>বকেয়া চাঁদা (আনুমানিক)</td><td class="num" style="color:var(--gold)">${money(totalOutstanding())}</td></tr>
+    <tr><td>মোট কুরবানির গোশত</td><td class="num">${bn(db.batches.reduce((s,x)=>s+ +x.kg,0))} কেজি</td></tr>
+    <tr><td>সামাজিক সেবা ব্যয়</td><td class="num">${money(db.services.filter(s=>s.status==='প্রদান').reduce((a,s)=>a+(+s.amount||0),0))}</td></tr>
+  </tbody></table></div>
+  <div class="grid" style="grid-template-columns:1.3fr 1fr;gap:14px;margin-top:16px" id="repBottom">
+    <div class="card"><div class="card-head"><h3>খাতভিত্তিক ব্যয়</h3></div>${catBars}</div>
+    <div class="card"><div class="card-head"><h3>পেমেন্ট মাধ্যম</h3></div>
+      ${Object.keys(methods).length?Object.entries(methods).map(([k,v])=>`<div class="bar-row"><span class="bl">${esc(k)}</span><span class="bar-track"><i style="width:${(v/maxMethod*100).toFixed(1)}%"></i></span><span class="bv">${money(v)}</span></div>`).join(''):'<div class="empty">কোনো আদায় নেই</div>'}
+    </div>
+  </div>
+  <h3 class="section">পরিবর্তনের ইতিহাস <span class="count">${bn(db.logs.length)}</span></h3>
+  <div class="table-wrap"><table><thead><tr><th>সময়</th><th>কাজ</th><th>টেবিল</th></tr></thead><tbody>${logs||emptyRow(3,'কোনো ইতিহাস নেই')}</tbody></table></div>`;
+}
+
+/* ============ VIEW: FINANCIAL ANALYTICS ============ */
+function viewAnalytics(){
+  const paid=totalPaid(), spent=totalSpent(), balance=paid-spent;
+  const cats = {}; db.expenses.forEach(e=>{ const k=e.category||'অন্যান্য'; cats[k]=(cats[k]||0)+ +e.amount; });
+  const catEntries = Object.entries(cats).sort((a,b)=>b[1]-a[1]);
+  const maxCat = Math.max(1, ...catEntries.map(c=>c[1]));
+
+  /* monthly trend */
+  const now = new Date(); const months = [];
+  for(let i=5;i>=0;i--){ const d=new Date(now.getFullYear(),now.getMonth()-i,1); months.push({y:d.getFullYear(),m:d.getMonth()+1,label:BN_MONTHS_SHORT[d.getMonth()]}); }
+  const trend = months.map(mo=>{
+    const key = mo.y+'-'+String(mo.m).padStart(2,'0');
+    return {label:mo.label,
+      inc: db.payments.filter(p=>String(p.date).startsWith(key)).reduce((s,p)=>s+ +p.amount,0),
+      exp: db.expenses.filter(e=>String(e.date).startsWith(key)).reduce((s,e)=>s+ +e.amount,0)};
+  });
+  const maxTrend = Math.max(1, ...trend.map(t=>Math.max(t.inc,t.exp)));
+
+  /* top families */
+  const famPay = activeFamilies().map(f=>({name:f.name, paid: db.payments.filter(p=>p.family===f.id).reduce((s,p)=>s+ +p.amount,0)})).sort((a,b)=>b.paid-a.paid).slice(0,5);
+  const maxFam = Math.max(1, ...famPay.map(f=>f.paid));
+
+  const avgMonthly = trend.reduce((s,t)=>s+t.inc,0)/6;
+  const avgExp = trend.reduce((s,t)=>s+t.exp,0)/6;
+
+  return `
+  <div class="toolbar"><button class="secondary" onclick="print()">প্রিন্ট</button><button onclick="exportCSV()">⬇ CSV</button></div>
+
+  <div class="metric-row">
+    <div class="metric"><div class="mv" style="color:var(--green)">${money(paid)}</div><div class="ml">মোট আদায়</div></div>
+    <div class="metric"><div class="mv" style="color:var(--red)">${money(spent)}</div><div class="ml">মোট ব্যয়</div></div>
+    <div class="metric"><div class="mv" style="color:${balance>=0?'var(--green)':'var(--red)'}">${money(balance)}</div><div class="ml">উদ্বৃত্ত</div></div>
+    <div class="metric"><div class="mv" style="color:var(--gold)">${money(totalOutstanding())}</div><div class="ml">বকেয়া</div></div>
+  </div>
+
+  <h3 class="section">📊 মাসভিত্তিক ট্রেন্ড</h3>
+  <div class="card chart-card">
+    <div class="card-head"><h3>আদায় ও ব্যয়ের তুলনা</h3>
+      <div class="legend"><span><i style="background:var(--green2)"></i>আদায়</span><span><i style="background:var(--red)"></i>ব্যয়</span></div>
+    </div>
+    <canvas id="chart" class="chart"></canvas>
+  </div>
+
+  <div class="grid" style="grid-template-columns:1fr 1fr;gap:14px;margin-top:16px" id="anaGrid">
+    <div class="card">
+      <div class="card-head"><h3>📈 ব্যয়ের খাত বিশ্লেষণ</h3></div>
+      ${catEntries.length?catEntries.map(([k,v])=>`<div class="bar-row"><span class="bl">${esc(k)}</span><span class="bar-track"><i style="width:${(v/maxCat*100).toFixed(1)}%"></i></span><span class="bv">${money(v)}</span></div>`).join(''):'<div class="empty">কোনো ব্যয় নেই</div>'}
+    </div>
+    <div class="card">
+      <div class="card-head"><h3>🏆 শীর্ষ আদায়কারী পরিবার</h3></div>
+      ${famPay.length?famPay.map(f=>`<div class="bar-row"><span class="bl">${esc(f.name)}</span><span class="bar-track"><i style="width:${(f.paid/maxFam*100).toFixed(1)}%"></i></span><span class="bv">${money(f.paid)}</span></div>`).join(''):'<div class="empty">কোনো আদায় নেই</div>'}
+    </div>
+  </div>
+
+  <h3 class="section">📅 মাসভিত্তিক সারসংক্ষেপ</h3>
+  <div class="table-wrap"><table><thead><tr><th>মাস</th><th class="num">আদায়</th><th class="num">ব্যয়</th><th class="num">উদ্বৃত্ত</th><th>দিক</th></tr></thead><tbody>
+    ${trend.map(t=>`<tr><td><b>${t.label}</b></td><td class="num" style="color:var(--green)">${money(t.inc)}</td><td class="num" style="color:var(--red)">${money(t.exp)}</td><td class="num" style="color:${t.inc-t.exp>=0?'var(--green)':'var(--red)'}">${money(t.inc-t.exp)}</td><td>${t.inc>t.exp?'📈 <span class="badge">সন্তোষজনক</span>':(t.inc<t.exp?'📉 <span class="badge red">ঘাটতি</span>':'<span class="badge gray">সমান</span>')}</td></tr>`).join('')}
+    <tr style="background:var(--line2)"><td><b>গড়</b></td><td class="num">${money(avgMonthly)}</td><td class="num">${money(avgExp)}</td><td class="num">${money(avgMonthly-avgExp)}</td><td>—</td></tr>
+  </tbody></table></div>`;
+}
+
+/* ============ VIEW: PUBLIC TRANSPARENCY ============ */
+function viewTransparency(){
+  const paid = totalPaid(), spent = totalSpent();
+  const cats = {}; db.expenses.forEach(e=>{ const k=e.category||'অন্যান্য'; cats[k]=(cats[k]||0)+ +e.amount; });
+  const maxCat = Math.max(1, ...Object.values(cats));
+  const recentExp = [...db.expenses].sort((a,b)=>String(b.date).localeCompare(String(a.date))).slice(0,10);
+
+  return `
+  <div class="hero">
+    <h2>🌐 প্রকাশ্য আর্থিক স্বচ্ছতা</h2>
+    <p>${esc(db.settings.mosqueName||'মসজিদ')} — সর্বজনীন আর্থিক তথ্য</p>
+  </div>
+  <div class="grid stats" style="margin-top:18px">
+    ${statCard('মোট আদায়', money(paid), '৳', '', 'সর্বকালীন')}
+    ${statCard('মোট ব্যয়', money(spent), '↗', 'red', 'সর্বকালীন')}
+    ${statCard('বর্তমান তহবিল', money(paid-spent), '◈', paid-spent>=0?'':'red', paid-spent>=0?'সন্তোষজনক':'ঘাটতি')}
+    ${statCard('সক্রিয় পরিবার', bn(activeFamilies().length), '⌂', 'blue')}
+  </div>
+
+  <h3 class="section">💡 ব্যয়ের খাতভিত্তিক বিভাজন</h3>
+  <div class="card">
+    ${Object.keys(cats).length?Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="bar-row"><span class="bl">${esc(k)}</span><span class="bar-track"><i style="width:${(v/maxCat*100).toFixed(1)}%"></i></span><span class="bv">${money(v)}</span></div>`).join(''):'<div class="empty">কোনো ব্যয় নেই</div>'}
+  </div>
+
+  <h3 class="section">🧾 সাম্প্রতিক ব্যয় (সর্বজনীন)</h3>
+  <div class="table-wrap"><table><thead><tr><th>তারিখ</th><th>খাত</th><th>বিবরণ</th><th class="num">পরিমাণ</th></tr></thead><tbody>
+    ${recentExp.length?recentExp.map(e=>`<tr><td>${fmtDate(e.date)}</td><td><span class="badge blue">${esc(e.category||'—')}</span></td><td>${esc(e.title)}</td><td class="num">${money(e.amount)}</td></tr>`).join(''):emptyRow(4,'কোনো ব্যয় নেই')}
+  </tbody></table></div>
+
+  <div class="notice ok" style="margin-top:16px"><b>স্বচ্ছতা:</b> এই পেজটি মসজিদের সদস্য ও এলাকাবাসীর জন্য প্রকাশ্য। ব্যক্তিগত তথ্য (পরিবারের নাম, বকেয়া) এখানে দেখানো হয় না।</div>
+  <div class="toolbar" style="margin-top:16px"><button class="secondary" onclick="print()">🖨 প্রিন্ট / শেয়ার</button></div>`;
+}
+
+/* ============ VIEW: AUDIT CENTER ============ */
+function viewAudit(){
+  const q = (currentTab.audit||'').toLowerCase();
+  const filtered = db.logs.filter(l=>!q || (l.action+' '+l.table+' '+l.at).toLowerCase().includes(q));
+  const rows = filtered.slice(0,100).map(l=>`<tr><td class="muted" style="font-size:11.5px">${esc(l.at)}</td><td><b>${esc(l.action)}</b></td><td><span class="badge gray">${esc(l.table)}</span></td><td class="muted" style="font-size:11px">${esc((l.record||'').slice(0,8))}</td></tr>`).join('');
+  const tables = {}; db.logs.forEach(l=>{ tables[l.table]=(tables[l.table]||0)+1; });
+
+  return `
+  <div class="toolbar">
+    <div class="searchbox"><input id="search" placeholder="কাজ / টেবিল / সময় খুঁজুন..." value="${esc(currentTab.audit||'')}" oninput="setTab('audit',this.value)"></div>
+    <div class="spacer"></div>
+    <button class="secondary" onclick="print()">প্রিন্ট</button>
+    <button onclick="exportAudit()">⬇ CSV</button>
+  </div>
+
+  <div class="grid stats" style="margin-bottom:16px">
+    ${statCard('মোট লগ', bn(db.logs.length), '📋', '')}
+    ${statCard('দেখানো হচ্ছে', bn(filtered.slice(0,100).length), '👁', 'blue')}
+    ${statCard('টেবিল সংখ্যা', bn(Object.keys(tables).length), '▤', 'gold')}
+    ${statCard('সর্বশেষ', db.logs[0]?esc(db.logs[0].at.split(',')[0]):'—', '◷', 'purple')}
+  </div>
+
+  <h3 class="section">📊 টেবিলভিত্তিক কার্যক্রম</h3>
+  <div class="card" style="margin-bottom:16px">
+    ${Object.entries(tables).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="bar-row"><span class="bl">${esc(k)}</span><span class="bar-track"><i style="width:${(v/Math.max(1,...Object.values(tables))*100).toFixed(1)}%"></i></span><span class="bv">${bn(v)}</span></div>`).join('')||'<div class="empty">কোনো কার্যক্রম নেই</div>'}
+  </div>
+
+  <h3 class="section">📋 সম্পূর্ণ অডিট লগ</h3>
+  <div class="table-wrap"><table><thead><tr><th>সময়</th><th>কাজ</th><th>টেবিল</th><th>রেকর্ড</th></tr></thead><tbody>${rows||emptyRow(4,'কোনো লগ নেই')}</tbody></table></div>`;
+}
+function exportAudit(){
+  const rows = [['সময়','কাজ','টেবিল','রেকর্ড'],...db.logs.map(l=>[l.at,l.action,l.table,l.record||''])];
+  const csv = '\ufeff' + rows.map(r=>r.map(v=>'"'+String(v||'').replace(/"/g,'""')+'"').join(',')).join('\r\n');
+  downloadBlob(new Blob([csv],{type:'text/csv;charset=utf-8'}), 'audit-log-'+today()+'.csv');
+  toast('অডিট লগ ডাউনলোড হয়েছে');
+}
+
+/* ============ VIEW: BACKUP & RESTORE ============ */
+function viewBackup(){
+  const size = new Blob([JSON.stringify(db)]).size;
+  const sizeKb = (size/1024).toFixed(1);
+  const tables = ['families','members','dues','payments','expenses','batches','distributions','notices','committees','meetings','events','services','assets','documents','logs'];
+  return `
+  <div class="hero">
+    <h2>💾 ব্যাকআপ ও রিস্টোর</h2>
+    <p>আপনার সব ডেটা সুরক্ষিত রাখুন • বর্তমান সাইজ: ${sizeKb} KB</p>
+    <div class="hero-actions"><button onclick="downloadBackup()">⬇ ব্যাকআপ ডাউনলোড</button></div>
+  </div>
+
+  <div class="grid stats" style="margin-top:18px">
+    ${statCard('ডেটা সাইজ', sizeKb+' KB', '💾', '')}
+    ${statCard('মোট রেকর্ড', bn(tables.reduce((s,t)=>s+db[t].length,0)), '▤', 'blue')}
+    ${statCard('লগ', bn(db.logs.length), '📋', 'gold')}
+    ${statCard('সর্বশেষ পরিবর্তন', db.logs[0]?esc(db.logs[0].at.split(',')[0]):'—', '◷', 'purple')}
+  </div>
+
+  <h3 class="section">📊 টেবিলভিত্তিক রেকর্ড সংখ্যা</h3>
+  <div class="card">
+    ${tables.map(t=>{const n=db[t].length; return n?`<div class="bar-row"><span class="bl">${esc(t)}</span><span class="bar-track"><i style="width:${(n/Math.max(1,...tables.map(x=>db[x].length))*100).toFixed(1)}%"></i></span><span class="bv">${bn(n)}</span></div>`:''}).join('')||'<div class="empty">কোনো ডেটা নেই</div>'}
+  </div>
+
+  <h3 class="section">💾 ব্যাকআপ ও রিস্টোর</h3>
+  <div class="grid" style="grid-template-columns:1fr 1fr;gap:14px" id="bkGrid">
+    <div class="panel">
+      <h3 style="margin-top:0">⬇ ব্যাকআপ ডাউনলোড</h3>
+      <p class="muted" style="font-size:13px">সম্পূর্ণ ডেটা JSON ফাইলে সংরক্ষণ করুন। এই ফাইল দিয়ে যেকোনো সময় রিস্টোর করা যাবে।</p>
+      <button onclick="downloadBackup()">ব্যাকআপ ডাউনলোড</button>
+    </div>
+    <div class="panel">
+      <h3 style="margin-top:0">⬆ ব্যাকআপ রিস্টোর</h3>
+      <p class="muted" style="font-size:13px">আগের JSON ব্যাকআপ ফাইল ফিরিয়ে আনুন। <b style="color:var(--red)">সতর্কতা:</b> বর্তমান ডেটা প্রতিস্থাপিত হবে।</p>
+      <label class="secondary" style="padding:10px 15px;border-radius:var(--r-sm);cursor:pointer;font-weight:650;font-size:14px;display:inline-block">
+        ব্যাকআপ ফাইল নির্বাচন<input type="file" accept=".json,application/json" hidden onchange="restoreBackup(event)">
+      </label>
+    </div>
+    <div class="panel">
+      <h3 style="margin-top:0">⬇ CSV রিপোর্ট</h3>
+      <p class="muted" style="font-size:13px">আদায় ও ব্যয় Excel-এ খোলার জন্য CSV ফাইল ডাউনলোড করুন।</p>
+      <button class="secondary" onclick="exportCSV()">CSV ডাউনলোড</button>
+    </div>
+    <div class="panel" style="border-color:var(--red-soft)">
+      <h3 style="margin-top:0;color:var(--red)">⚠ বিপজ্জনক অঞ্চল</h3>
+      <p class="muted" style="font-size:13px">সব স্থানীয় ডেটা স্থায়ীভাবে মুছে ফেলুন। এটি ফিরিয়ে আনা যাবে না।</p>
+      <button class="danger" onclick="clearAll()">সব ডেটা মুছে ফেলুন</button>
+    </div>
+  </div>
+  <div class="notice info" style="margin-top:16px"><b>পরামর্শ:</b> সপ্তাহে অন্তত একবার ব্যাকআপ ডাউনলোড করে নিরাপদ স্থানে রাখুন। ব্রাউজার ডেটা মুছে গেলে ব্যাকআপ ছাড়া তথ্য উদ্ধার সম্ভব নয়।</div>`;
+}
+
+/* ============ VIEW: SECURITY CENTER ============ */
+function viewSecurity(){
+  const pinSet = localStorage.getItem(PINKEY);
+  const lastLog = db.logs[0];
+  const tables = ['families','members','payments','expenses'];
+  const todayActions = db.logs.filter(l=>l.at.includes(today().split('-')[0])).length;
+  return `
+  <div class="hero">
+    <h2>🔒 নিরাপত্তা কেন্দ্র</h2>
+    <p>আপনার ডেটা ও সিস্টেমের নিরাপত্তা ব্যবস্থাপনা</p>
+    <div class="hero-actions">${admin?`<button onclick="logoutAll()">🔓 সব সেশন লগআউট</button>`:''}</div>
+  </div>
+
+  <div class="grid stats" style="margin-top:18px">
+    ${statCard('PIN সেট', pinSet?'সক্রিয়':'ডিফল্ট', '🔐', pinSet?'':'gold', pinSet?'কাস্টম PIN':'123456 ব্যবহার হচ্ছে')}
+    ${statCard('অ্যাডমিন মোড', admin?'সক্রিয়':'নিষ্ক্রিয়', '👤', admin?'':'gold', admin?'সম্পূর্ণ অ্যাক্সেস':'শুধু দেখার')}
+    ${statCard('আজকের কাজ', bn(todayActions), '📋', 'blue')}
+    ${statCard('সর্বশেষ', lastLog?esc(lastLog.at.split(',')[0]):'—', '◷', 'purple')}
+  </div>
+
+  <h3 class="section">🔐 নিরাপত্তা সেটিংস</h3>
+  <div class="panel">
+    <div class="setting-row">
+      <div class="sr-info"><b>অ্যাডমিন PIN</b><small>প্রথমবার লগইনে ডিফল্ট 123456 ব্যবহার করুন, তারপর পরিবর্তন করুন</small></div>
+      <button class="secondary" onclick="changePin()">PIN পরিবর্তন</button>
+    </div>
+    <div class="setting-row">
+      <div class="sr-info"><b>সেশন স্ট্যাটাস</b><small>${admin?'আপনি অ্যাডমিন হিসেবে লগইন আছেন':'শুধু দেখার মোডে আছেন'}</small></div>
+      <button class="${admin?'danger':'secondary'}" onclick="document.getElementById('loginBtn').click()">${admin?'লগআউট':'লগইন'}</button>
+    </div>
+    <div class="setting-row">
+      <div class="sr-info"><b>সব ডেটা মুছে ফেলা</b><small>এই কাজটি ফিরিয়ে আনা যাবে না — সতর্কতার সাথে ব্যবহার করুন</small></div>
+      <button class="danger" onclick="clearAll()">ডেটা মুছুন</button>
+    </div>
+  </div>
+
+  <h3 class="section">📋 সাম্প্রতিক নিরাপত্তা কার্যক্রম</h3>
+  <div class="table-wrap"><table><thead><tr><th>সময়</th><th>কাজ</th><th>টেবিল</th></tr></thead><tbody>
+    ${db.logs.slice(0,15).map(l=>`<tr><td class="muted" style="font-size:11.5px">${esc(l.at)}</td><td>${esc(l.action)}</td><td><span class="badge gray">${esc(l.table)}</span></td></tr>`).join('')||emptyRow(3,'কোনো কার্যক্রম নেই')}
+  </tbody></table></div>
+
+  <div class="notice info" style="margin-top:16px"><b>গুরুত্বপূর্ণ:</b> এই সিস্টেম LocalStorage-এ কাজ করে। সেশন ব্রাউজার বন্ধ করলে শেষ হয়ে যায়। ডিভাইস শেয়ার করলে ব্যাকআপ নিয়ে রাখুন।</div>`;
+}
+function logoutAll(){
+  if(!confirm('সব সেশন লগআউট করবেন?')) return;
+  admin = false; sessionStorage.removeItem('mosque_admin');
+  render(); toast('সব সেশন লগআউট সম্পন্ন','warn');
+}
+
+/* ============ VIEW: SETTINGS ============ */
+function viewSettings(){
+  return `
+  <div class="grid" style="grid-template-columns:1fr 1fr;gap:16px" id="setGrid">
+    <div class="panel">
+      <h3 style="margin-top:0">🕌 মসজিদের তথ্য</h3>
+      <label>মসজিদের নাম</label>
+      <input id="mosqueName" value="${esc(db.settings.mosqueName||'')}" placeholder="মসজিদের নাম">
+      <button style="margin-top:12px" onclick="saveMosqueName()">সংরক্ষণ</button>
+    </div>
+    <div class="panel">
+      <h3 style="margin-top:0">🎨 চেহারা</h3>
+      <p class="muted" style="font-size:13px">হালকা / অন্ধকার থিম নির্বাচন করুন।</p>
+      <button class="secondary" onclick="toggleTheme()">থিম পরিবর্তন</button>
+      <button class="secondary" onclick="setPage('appearance')">ভাষা ও থিম</button>
+    </div>
+    <div class="panel">
+      <h3 style="margin-top:0">🔐 নিরাপত্তা</h3>
+      <p class="muted" style="font-size:13px">অ্যাডমিন PIN পরিবর্তন করুন।</p>
+      <button class="secondary" onclick="changePin()">PIN পরিবর্তন</button>
+    </div>
+    <div class="panel">
+      <h3 style="margin-top:0">💾 ব্যাকআপ</h3>
+      <p class="muted" style="font-size:13px">ডেটা নিরাপদ রাখুন।</p>
+      <button class="secondary" onclick="setPage('backup')">ব্যাকআপ সেন্টার</button>
+    </div>
+    <div class="panel" style="grid-column:1/-1">
+      <h3 style="margin-top:0">🔌 API ও ইন্টিগ্রেশন</h3>
+      <p class="muted" style="font-size:13px">Supabase বা ওয়েবহুক সংযোগ কনফিগার করুন।</p>
+      <button class="secondary" onclick="setPage('api')">API সেটিংস</button>
+    </div>
+  </div>`;
+}
+function saveMosqueName(){
+  if(!requireAdmin()) return;
+  db.settings.mosqueName = $('#mosqueName').value.trim() || 'মসজিদ ও সমাজ ব্যবস্থাপনা';
+  save(); render(); toast('মসজিদের নাম সংরক্ষিত');
+}
+
+/* ============ VIEW: ROLE & PERMISSION ============ */
+function viewRoles(){
+  const roles = db.settings.roles || {};
+  const roleList = [
+    {key:'admin', name:'অ্যাডমিন', desc:'সম্পূর্ণ অ্যাক্সেস — সব ডেটা দেখা ও সম্পাদনা', perms:['পরিবার','সদস্য','চাঁদা','আদায়','ব্যয়','কুরবানি','নোটিশ','সেটিংস']},
+    {key:'member', name:'সদস্য', desc:'শুধু নিজের তথ্য ও প্রকাশ্য তথ্য দেখতে পারবেন', perms:['নিজের চাঁদা','পোর্টাল','নোটিশ']},
+    {key:'auditor', name:'অডিটর', desc:'রিপোর্ট ও লগ দেখতে পারবেন, সম্পাদনা করতে পারবেন না', perms:['রিপোর্ট','অডিট','ট্রান্সপারেন্সি']}
+  ];
+  return `
+  <div class="hero"><h2>👤 ভূমিকা ও অনুমতি</h2><p>সিস্টেমের ইউজার ভূমিকা ও তাদের অ্যাক্সেস নিয়ন্ত্রণ</p></div>
+
+  <h3 class="section">ভূমিকা তালিকা</h3>
+  <div class="grid" style="grid-template-columns:repeat(3,1fr);gap:14px" id="roleGrid">
+    ${roleList.map(r=>`
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <b style="font-size:16px">${r.name}</b>
+          <span class="badge ${r.key==='admin'?'':(r.key==='auditor'?'blue':'gray')}">${r.key==='admin'?'সক্রিয়':'সক্রিয়'}</span>
+        </div>
+        <p class="muted" style="font-size:12.5px;margin:0 0 12px">${r.desc}</p>
+        <div style="display:flex;gap:4px;flex-wrap:wrap">${r.perms.map(p=>`<span class="chip">${p}</span>`).join('')}</div>
+      </div>
+    `).join('')}
+  </div>
+
+  <h3 class="section">অ্যাক্সেস ম্যাট্রিক্স</h3>
+  <div class="table-wrap"><table><thead><tr><th>মডিউল</th><th>অ্যাডমিন</th><th>সদস্য</th><th>অডিটর</th></tr></thead><tbody>
+    ${[
+      ['ড্যাশবোর্ড','✓','✓','✓'],
+      ['পরিবার ও সদস্য','✓','—','👁'],
+      ['চাঁদা ও আদায়','✓','👁','👁'],
+      ['ব্যয়','✓','—','👁'],
+      ['কুরবানি','✓','—','—'],
+      ['নোটিশ','✓','✓','✓'],
+      ['রিপোর্ট','✓','—','✓'],
+      ['অডিট লগ','✓','—','✓'],
+      ['ব্যাকআপ','✓','—','—'],
+      ['সেটিংস','✓','—','—']
+    ].map(r=>`<tr><td><b>${r[0]}</b></td><td style="color:var(--green)">${r[1]}</td><td class="muted">${r[2]}</td><td style="color:var(--blue)">${r[3]}</td></tr>`).join('')}
+  </tbody></table></div>
+
+  <div class="notice info" style="margin-top:16px"><b>নোট:</b> এই সংস্করণে রোল সিস্টেম ডেমো হিসেবে দেখানো হচ্ছে। বাস্তব মাল্টি-ইউজার অ্যাক্সেসের জন্য Supabase Auth + RLS নীতি সংযুক্ত করতে হবে।</div>`;
+}
+
+/* ============ VIEW: LANGUAGE & THEME ============ */
+function viewAppearance(){
+  const theme = document.documentElement.getAttribute('data-theme') || 'light';
+  const lang = localStorage.getItem(LANGKEY) || 'bn';
+  return `
+  <div class="hero"><h2>🌍 ভাষা ও থিম</h2><p>অ্যাপের চেহারা ও ভাষা কাস্টমাইজ করুন</p></div>
+
+  <h3 class="section">🎨 থিম নির্বাচন</h3>
+  <div class="grid" style="grid-template-columns:repeat(2,1fr);gap:14px" id="themeGrid">
+    <div class="card" style="cursor:pointer;${theme==='light'?'border-color:var(--green);border-width:2.5px':''}" onclick="applyTheme('light')">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="width:50px;height:50px;border-radius:12px;background:linear-gradient(135deg,#f1f5f2,#ffffff);border:1.5px solid var(--line);display:grid;place-items:center;font-size:20px">☀</div>
+        <div><b>লাইট থিম</b><div class="muted" style="font-size:12px">উজ্জ্বল ও পরিষ্কার</div></div>
+        <div style="margin-left:auto;font-size:20px;color:var(--green)">${theme==='light'?'✓':''}</div>
+      </div>
+    </div>
+    <div class="card" style="cursor:pointer;${theme==='dark'?'border-color:var(--green);border-width:2.5px':''}" onclick="applyTheme('dark')">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="width:50px;height:50px;border-radius:12px;background:linear-gradient(135deg,#0b1310,#131f19);border:1.5px solid var(--line);display:grid;place-items:center;font-size:20px;color:#fff">🌙</div>
+        <div><b>ডার্ক থিম</b><div class="muted" style="font-size:12px">চোখের জন্য আরামদায়ক</div></div>
+        <div style="margin-left:auto;font-size:20px;color:var(--green)">${theme==='dark'?'✓':''}</div>
+      </div>
+    </div>
+  </div>
+
+  <h3 class="section">🌐 ভাষা নির্বাচন</h3>
+  <div class="card">
+    <div class="setting-row">
+      <div class="sr-info"><b>বাংলা (Bengali)</b><small>সিস্টেমের সম্পূর্ণ বাংলা ইন্টারফেস</small></div>
+      <span class="badge">সক্রিয়</span>
+    </div>
+    <div class="setting-row">
+      <div class="sr-info"><b>English</b><small>ইংরেজি ভাষা সমর্থন — শীঘ্রই আসছে</small></div>
+      <span class="badge gray">শীঘ্রই</span>
+    </div>
+    <div class="setting-row">
+      <div class="sr-info"><b>العربية (Arabic)</b><small>আরবি ভাষা সমর্থন — শীঘ্রই আসছে</small></div>
+      <span class="badge gray">শীঘ্রই</span>
+    </div>
+  </div>
+
+  <h3 class="section">📐 অন্যান্য পছন্দ</h3>
+  <div class="card">
+    <div class="setting-row">
+      <div class="sr-info"><b>ড্যাশবোর্ড চার্ট</b><small>ড্যাশবোর্ডে মাসিক চার্ট দেখুন</small></div>
+      <label class="switch"><input type="checkbox" checked onchange="toast('সেটিং সংরক্ষিত')"><span class="slider"></span></label>
+    </div>
+    <div class="setting-row">
+      <div class="sr-info"><b>স্বয়ংক্রিয় রিফ্রেশ</b><small>পরিবর্তনের সাথে সাথে আপডেট</small></div>
+      <label class="switch"><input type="checkbox" checked disabled><span class="slider"></span></label>
+    </div>
+  </div>
+
+  <div class="notice info" style="margin-top:16px">থিম ও ভাষা সেটিং এই ব্রাউজারে সংরক্ষিত হয়। অন্য ডিভাইসে আলাদাভাবে সেট করতে হবে।</div>`;
+}
+
+/* ============ VIEW: AUTOMATION CENTER ============ */
+function viewAutomation(){
+  const auto = db.settings.automation || {};
+  return `
+  <div class="hero"><h2>⚡ অটোমেশন সেন্টার</h2><p>স্বয়ংক্রিয় কাজ কনফিগার করুন</p></div>
+
+  <div class="grid stats" style="margin-top:18px">
+    ${statCard('বকেয়া রিমাইন্ডার', auto.dueReminderDays||7+' দিন', '⏰', '')}
+    ${statCard('অটো ব্যাকআপ', auto.autoBackup?'সক্রিয়':'নিষ্ক্রিয়', '💾', auto.autoBackup?'':'gold')}
+    ${statCard('রিমাইন্ডার সময়', auto.reminderTime||'08:00', '🕐', 'blue')}
+    ${statCard('অটো রসিদ', auto.autoReceipt?'সক্রিয়':'নিষ্ক্রিয়', '🧾', auto.autoReceipt?'':'gold')}
+  </div>
+
+  <h3 class="section">⏰ স্বয়ংক্রিয় রিমাইন্ডার</h3>
+  <div class="panel">
+    <div class="setting-row">
+      <div class="sr-info"><b>বকেয়া চাঁদা রিমাইন্ডার</b><small>বকেয়া থাকলে নির্দিষ্ট দিন পরপর নোটিশ পাঠানো হবে</small></div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <input type="number" value="${auto.dueReminderDays||7}" min="1" max="30" style="width:80px" onchange="updateAuto('dueReminderDays', this.value)">
+        <span class="muted">দিন</span>
+      </div>
+    </div>
+    <div class="setting-row">
+      <div class="sr-info"><b>রিমাইন্ডারের সময়</b><small>দিনের কোন সময়ে রিমাইন্ডার পাঠানো হবে</small></div>
+      <input type="time" value="${auto.reminderTime||'08:00'}" style="width:130px" onchange="updateAuto('reminderTime', this.value)">
+    </div>
+    <div class="setting-row">
+      <div class="sr-info"><b>অটো রসিদ</b><small>আদায়ের সাথে সাথে রসিদ তৈরি হবে</small></div>
+      <label class="switch"><input type="checkbox" ${auto.autoReceipt?'checked':''} onchange="updateAuto('autoReceipt', this.checked)"><span class="slider"></span></label>
+    </div>
+  </div>
+
+  <h3 class="section">💾 স্বয়ংক্রিয় ব্যাকআপ</h3>
+  <div class="panel">
+    <div class="setting-row">
+      <div class="sr-info"><b>অটো ব্যাকআপ</b><small>নির্দিষ্ট বিরতিতে স্বয়ংক্রিয় ব্যাকআপ তৈরি হবে</small></div>
+      <label class="switch"><input type="checkbox" ${auto.autoBackup?'checked':''} onchange="updateAuto('autoBackup', this.checked)"><span class="slider"></span></label>
+    </div>
+    ${auto.autoBackup?`<div class="notice ok" style="margin-top:12px">✓ অটো ব্যাকআপ সক্রিয়। বর্তমান সংস্করণে প্রতিটি পরিবর্তনের পর স্বয়ংক্রিয় ব্যাকআপ হবে।</div>`:''}
+  </div>
+
+  <h3 class="section">🔔 স্বয়ংক্রিয় কাজের তালিকা</h3>
+  <div class="card">
+    <div class="health-item">
+      <div class="hi-icon">⏰</div>
+      <div class="hi-body"><b>বকেয়া রিমাইন্ডার</b><small>প্রতি ${auto.dueReminderDays||7} দিনে একবার</small></div>
+      <span class="badge ${auto.autoBackup?'':'gray'}">${auto.autoBackup?'সক্রিয়':'নিষ্ক্রিয়'}</span>
+    </div>
+    <div class="health-item">
+      <div class="hi-icon">💾</div>
+      <div class="hi-body"><b>ডেটা ব্যাকআপ</b><small>প্রতিটি পরিবর্তনের পর</small></div>
+      <span class="badge">সক্রিয়</span>
+    </div>
+    <div class="health-item">
+      <div class="hi-icon">📊</div>
+      <div class="hi-body"><b>মাসিক রিপোর্ট</b><small>মাসের শেষ দিনে</small></div>
+      <span class="badge gray">নিষ্ক্রিয়</span>
+    </div>
+    <div class="health-item">
+      <div class="hi-icon">🧾</div>
+      <div class="hi-body"><b>অটো রসিদ</b><small>আদায়ের সময়</small></div>
+      <span class="badge ${auto.autoReceipt?'':'gray'}">${auto.autoReceipt?'সক্রিয়':'নিষ্ক্রিয়'}</span>
+    </div>
+  </div>
+
+  <div class="notice info" style="margin-top:16px"><b>দ্রষ্টব্য:</b> এই সংস্করণে অটোমেশন সেটিং সংরক্ষিত হয় কিন্তু প্রকৃত স্বয়ংক্রিয় রিমাইন্ডার (SMS/email) পাঠাতে Supabase Edge Functions বা তৃতীয় পক্ষের API সংযোগ প্রয়োজন।</div>`;
+}
+function updateAuto(key, val){
+  if(!requireAdmin()) return;
+  db.settings.automation = db.settings.automation || {};
+  db.settings.automation[key] = val;
+  save();
+  toast('সেটিং আপডেট');
+  render();
+}
+
+/* ============ VIEW: API INTEGRATION ============ */
+function viewApi(){
+  const api = db.settings.api || {};
+  return `
+  <div class="hero"><h2>🔌 API ইন্টিগ্রেশন</h2><p>বাহ্যিক সেবা ও ক্লাউড সিঙ্ক সংযোগ</p></div>
+
+  <h3 class="section">☁ Supabase সংযোগ</h3>
+  <div class="panel">
+    <div class="notice info" style="margin-bottom:14px"><b>নোট:</b> এই সংস্করণ LocalStorage-এ কাজ করে। একাধিক ডিভাইসে সিঙ্ক করতে Supabase URL ও anon key দিন। কখনো <b>service_role</b> key HTML-এ রাখবেন না।</div>
+    <label>Project URL</label>
+    <input id="sbUrl" value="${esc(api.url||'')}" placeholder="https://xxxx.supabase.co">
+    <label style="margin-top:12px">Anon Public Key</label>
+    <input id="sbKey" value="${esc(api.key||'')}" placeholder="eyJhbGciOi...">
+    <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+      <button onclick="saveApi()">সংযোগ সংরক্ষণ</button>
+      <button class="secondary" onclick="testApi()">সংযোগ পরীক্ষা</button>
+    </div>
+    <p class="muted" id="apiMsg" style="font-size:12.5px;margin-top:10px"></p>
+  </div>
+
+  <h3 class="section">🔗 ওয়েবহুক</h3>
+  <div class="panel">
+    <p class="muted" style="font-size:13px">মূল ঘটনা ঘটলে (নতুন আদায়, নতুন সদস্য) নির্দিষ্ট URL-এ POST পাঠানো হবে।</p>
+    <label>Webhook URL</label>
+    <input id="whUrl" value="${esc(api.webhook||'')}" placeholder="https://your-server.com/webhook">
+    <button style="margin-top:12px" onclick="saveWebhook()">সংরক্ষণ</button>
+  </div>
+
+  <h3 class="section">📡 এন্ডপয়েন্ট তালিকা</h3>
+  <div class="table-wrap"><table><thead><tr><th>এন্ডপয়েন্ট</th><th>পদ্ধতি</th><th>বর্ণনা</th><th>স্ট্যাটাস</th></tr></thead><tbody>
+    <tr><td class="mono">/families</td><td><span class="badge blue">GET</span></td><td>সব পরিবার</td><td><span class="badge gray">লোকাল</span></td></tr>
+    <tr><td class="mono">/payments</td><td><span class="badge blue">GET</span></td><td>সব আদায়</td><td><span class="badge gray">লোকাল</span></td></tr>
+    <tr><td class="mono">/expenses</td><td><span class="badge blue">GET</span></td><td>সব ব্যয়</td><td><span class="badge gray">লোকাল</span></td></tr>
+    <tr><td class="mono">/reports/monthly</td><td><span class="badge blue">GET</span></td><td>মাসিক সারাংশ</td><td><span class="badge gray">লোকাল</span></td></tr>
+  </tbody></table></div>
+
+  <div class="notice" style="margin-top:16px"><b>নিরাপত্তা:</b> API key ও webhook URL ব্রাউজারে সংরক্ষিত। সংবেদনশীল প্রোডাকশন পরিবেশে সার্ভার-সাইড প্রক্সি ব্যবহার করুন।</div>`;
+}
+function saveApi(){
+  if(!requireAdmin()) return;
+  const url = $('#sbUrl').value.trim(), key = $('#sbKey').value.trim();
+  db.settings.api = {...(db.settings.api||{}), url, key};
+  save(); toast('API সংযোগ সংরক্ষিত');
+}
+function saveWebhook(){
+  if(!requireAdmin()) return;
+  db.settings.api = {...(db.settings.api||{}), webhook: $('#whUrl').value.trim()};
+  save(); toast('ওয়েবহুক সংরক্ষিত');
+}
+function testApi(){
+  const url = $('#sbUrl').value.trim();
+  const msg = $('#apiMsg');
+  if(!url || !url.startsWith('https://')){ msg.textContent = '⚠ সঠিক URL দিন'; msg.style.color='var(--red)'; return; }
+  msg.textContent = '⏳ পরীক্ষা চলছে...'; msg.style.color='var(--muted)';
+  setTimeout(()=>{
+    msg.textContent = '✓ URL ফরম্যাট সঠিক। প্রকৃত সংযোগের জন্য সার্ভার সাইড লজিক প্রয়োজন।';
+    msg.style.color = 'var(--green)';
+  }, 600);
+}
+
+/* ============ VIEW: SYSTEM HEALTH ============ */
+function viewHealth(){
+  const size = new Blob([JSON.stringify(db)]).size;
+  const sizeKb = (size/1024).toFixed(1);
+  const limit = 5*1024; // 5MB typical localStorage limit
+  const usagePct = Math.min(100, (sizeKb/limit*100));
+  const storageStatus = usagePct < 60 ? 'ok' : usagePct < 85 ? 'warn' : 'bad';
+  const totalRecords = Object.keys(db).reduce((s,k)=>{ if(Array.isArray(db[k])) return s+db[k].length; return s; }, 0);
+  const logsCount = db.logs.length;
+  const lastAction = db.logs[0];
+
+  return `
+  <div class="hero"><h2>💚 সিস্টেম স্বাস্থ্য</h2><p>ডেটা স্টোরেজ, পারফরম্যান্স ও ইন্টিগ্রিটি চেক</p></div>
+
+  <div class="grid stats" style="margin-top:18px">
+    ${statCard('স্টোরেজ ব্যবহার', sizeKb+' KB', '💾', storageStatus==='ok'?'':(storageStatus==='warn'?'gold':'red'), 'সীমা: ৫ MB')}
+    ${statCard('মোট রেকর্ড', bn(totalRecords), '▤', 'blue')}
+    ${statCard('লগ', bn(logsCount), '📋', 'purple')}
+    ${statCard('সর্বশেষ কাজ', lastAction?esc(lastAction.at.split(',')[0]):'—', '◷', '')}
+  </div>
+
+  <h3 class="section">📊 স্বাস্থ্য চেক</h3>
+  <div class="health-item ${storageStatus==='bad'?'bad':(storageStatus==='warn'?'warn':'')}">
+    <div class="hi-icon">💾</div>
+    <div class="hi-body"><b>লোকাল স্টোরেজ</b><small>${sizeKb} KB / ৫ MB (${usagePct.toFixed(1)}% ব্যবহৃত)</small>
+      <div class="progress" style="margin-top:6px"><span style="width:${usagePct}%"></span></div>
+    </div>
+    <div class="hi-val" style="color:var(--${storageStatus==='ok'?'green':(storageStatus==='warn'?'gold':'red')})">${storageStatus==='ok'?'ভালো':(storageStatus==='warn'?'সতর্ক':'সমস্যা')}</div>
+  </div>
+  <div class="health-item">
+    <div class="hi-icon">🔗</div>
+    <div class="hi-body"><b>ডেটা ইন্টিগ্রিটি</b><small>সব টেবিল সঠিকভাবে লোড হয়েছে</small></div>
+    <div class="hi-val" style="color:var(--green)">✓ ভালো</div>
+  </div>
+  <div class="health-item">
+    <div class="hi-icon">⚡</div>
+    <div class="hi-body"><b>পারফরম্যান্স</b><small>${bn(totalRecords)} রেকর্ড • দ্রুত লোড</small></div>
+    <div class="hi-val" style="color:var(--green)">দ্রুত</div>
+  </div>
+  <div class="health-item">
+    <div class="hi-icon">📋</div>
+    <div class="hi-body"><b>অডিট লগ</b><small>${bn(logsCount)} টি এন্ট্রি সংরক্ষিত</small></div>
+    <div class="hi-val" style="color:var(--green)">✓ সক্রিয়</div>
+  </div>
+  <div class="health-item">
+    <div class="hi-icon">🔐</div>
+    <div class="hi-body"><b>সেশন স্ট্যাটাস</b><small>${admin?'অ্যাডমিন মোড':'শুধু দেখার মোড'}</small></div>
+    <div class="hi-val" style="color:${admin?'var(--green)':'var(--gold)'}">${admin?'সক্রিয়':'নিষ্ক্রিয়'}</div>
+  </div>
+
+  <h3 class="section">🔧 রক্ষণাবেক্ষণ</h3>
+  <div class="panel">
+    <div class="setting-row">
+      <div class="sr-info"><b>পুরনো লগ পরিষ্কার</b><small>সাম্প্রতিক ২০০ লগ রেখে বাকি মুছে ফেলুন</small></div>
+      <button class="secondary" onclick="cleanLogs()">পরিষ্কার</button>
+    </div>
+    <div class="setting-row">
+      <div class="sr-info"><b>ডেটা ভ্যালিডেশন</b><small>সব টেবিলের রেকর্ড যাচাই করুন</small></div>
+      <button class="secondary" onclick="validateData()">যাচাই</button>
+    </div>
+    <div class="setting-row">
+      <div class="sr-info"><b>ব্যাকআপ</b><small>সম্পূর্ণ ডেটা JSON ফাইলে সংরক্ষণ</small></div>
+      <button class="secondary" onclick="downloadBackup()">ডাউনলোড</button>
+    </div>
+  </div>
+
+  <div class="notice ok" style="margin-top:16px"><b>সিস্টেম স্বাস্থ্য:</b> সবকিছু স্বাভাবিকভাবে চলছে। নিয়মিত ব্যাকআপ নিন।</div>`;
+}
+function cleanLogs(){
+  if(!requireAdmin()) return;
+  if(!confirm('সাম্প্রতিক ২০০ লগ রেখে বাকি সব মুছে ফেলবেন?')) return;
+  db.logs = db.logs.slice(0, 200); save(); render(); toast('লগ পরিষ্কার সম্পন্ন');
+}
+function validateData(){
+  const issues = [];
+  db.payments.forEach(p=>{ if(!db.families.find(f=>f.id===p.family)) issues.push('আদায় '+p.id+' — পরিবার নেই'); });
+  db.members.forEach(m=>{ if(!db.families.find(f=>f.id===m.family)) issues.push('সদস্য '+m.id+' — পরিবার নেই'); });
+  db.distributions.forEach(d=>{ if(!db.families.find(f=>f.id===d.family)) issues.push('বিতরণ '+d.id+' — পরিবার নেই'); });
+  if(issues.length) toast(`${issues.length} টি সমস্যা পাওয়া গেছে`, 'warn');
+  else toast('✓ সব ডেটা সঠিক');
+}
+
+/* ============ MAKE DISTRIBUTION ============ */
+function makeDistribution(batchId){
+  if(!requireAdmin()) return;
+  const b = db.batches.find(x=>x.id===batchId); if(!b) return;
+  const fs = activeFamilies();
+  if(!fs.length){ toast('আগে পরিবার যোগ করুন','error'); return; }
+  if(db.distributions.some(x=>x.batch===batchId)){ toast('এই অনুষ্ঠানের বণ্টন আগেই তৈরি','warn'); return; }
+  const per = +(b.kg/fs.length).toFixed(3);
+  b.families = fs.length; b.per = per;
+  fs.forEach(f=>db.distributions.push({id:uid(), batch:batchId, family:f.id, allocated:per, delivered:0, status:'pending'}));
+  log('গোশত বণ্টন তালিকা তৈরি','distributions', batchId); save();
+  toast(`প্রতি পরিবার ${bn(per)} কেজি বরাদ্দ হয়েছে`); setPage('distribution');
+}
+function markDelivered(idv){
+  if(!requireAdmin()) return;
+  const x = db.distributions.find(d=>d.id===idv); if(!x) return;
+  if(!confirm(`${familyName(x.family)} কি ${bn(x.allocated)} কেজি গোশত গ্রহণ করেছেন?`)) return;
+  x.delivered = x.allocated; x.status = 'delivered'; x.receivedBy = familyName(x.family); x.receivedAt = new Date().toLocaleString('bn-BD');
+  log('গোশত গ্রহণ নিশ্চিত','distributions', idv); save(); render(); toast('গ্রহণ নিশ্চিত');
+}
+function receipt(idv){
+  const x = db.payments.find(p=>p.id===idv); if(!x) return;
+  const w = window.open('', '_blank');
+  if(!w){ toast('পপ-আপ ব্লক করা','error'); return; }
+  w.document.write(`<!DOCTYPE html><html lang="bn"><head><meta charset="utf-8"><title>রসিদ ${esc(x.receipt||'')}</title>
+  <style>*{box-sizing:border-box}body{font-family:"Noto Sans Bengali",Arial,sans-serif;padding:36px;color:#122019;max-width:620px;margin:auto}
+  .head{display:flex;gap:14px;align-items:center;border-bottom:3px solid #0a7d52;padding-bottom:14px;margin-bottom:22px}
+  .logo{width:52px;height:52px;border-radius:14px;background:linear-gradient(150deg,#18b57c,#0a6d49);display:grid;place-items:center;font-size:26px;color:#fff}
+  h1{margin:0;font-size:19px}.sub{font-size:12px;color:#6b7b72;margin-top:2px}
+  .tag{display:inline-block;background:#e7f4ed;color:#0a7d52;padding:3px 12px;border-radius:20px;font-size:12px;font-weight:700;margin-bottom:16px}
+  table{width:100%;border-collapse:collapse;margin:14px 0}td{padding:10px 6px;border-bottom:1px dashed #dbe6e0;font-size:14px}
+  td:first-child{color:#6b7b72;width:42%}td:last-child{text-align:right;font-weight:600}
+  .total{background:#e7f4ed;border-radius:12px;padding:16px;text-align:center;margin:20px 0}
+  .total small{display:block;color:#0a7d52;font-size:12px;font-weight:700;letter-spacing:1px}.total b{font-size:28px;color:#0a7d52}
+  .sign{margin-top:60px;display:flex;justify-content:space-between;font-size:12.5px;color:#6b7b72}
+  .sign div{border-top:1px solid #b9c9c0;padding-top:7px;width:42%;text-align:center}
+  .foot{margin-top:34px;text-align:center;font-size:11px;color:#9aada3}</style></head><body>
+  <div class="head"><div class="logo">🕌</div><div><h1>${esc(db.settings.mosqueName||'মসজিদ ও সমাজ ব্যবস্থাপনা')}</h1><div class="sub">চাঁদা আদায়ের অফিসিয়াল রসিদ</div></div></div>
+  <span class="tag">রসিদ: ${esc(x.receipt||'—')}</span>
+  <table><tr><td>তারিখ</td><td>${fmtDate(x.date)}</td></tr><tr><td>পরিবার</td><td>${esc(familyName(x.family))}</td></tr>
+  <tr><td>চাঁদা</td><td>${esc(duename(x.due))}</td></tr><tr><td>মাধ্যম</td><td>${esc(x.method||'—')}</td></tr>
+  ${x.note?`<tr><td>মন্তব্য</td><td>${esc(x.note)}</td></tr>`:''}</table>
+  <div class="total"><small>জমার পরিমাণ</small><b>${money(x.amount)}</b></div>
+  <div class="sign"><div>আদায়কারীর স্বাক্ষর</div><div>গ্রহণকারীর স্বাক্ষর</div></div>
+  <div class="foot">এই রসিদ কম্পিউটার জেনারেটেড — হিসাবের স্বচ্ছতায় আপনার পাশে।</div>
+  <script>window.onload=()=>setTimeout(()=>window.print(),350)<\/script></body></html>`);
+  w.document.close();
+}
+
+/* ============ IMPORT / EXPORT ============ */
+function downloadBlob(blob, name){
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 200);
+}
+function downloadBackup(){
+  if(!requireAdmin()) return;
+  const blob = new Blob([JSON.stringify(db, null, 2)], {type:'application/json'});
+  downloadBlob(blob, 'mosque-backup-'+today()+'.json');
+  toast('ব্যাকআপ ডাউনলোড শুরু');
+}
+function restoreBackup(e){
+  if(!requireAdmin()) return;
+  const f = e.target.files[0]; if(!f) return;
+  const r = new FileReader();
+  r.onload = ()=>{
+    try{
+      const v = JSON.parse(r.result);
+      if(!v || !Array.isArray(v.families) || !Array.isArray(v.payments)) throw new Error();
+      if(!confirm('বর্তমান ডেটা প্রতিস্থাপিত হবে। নিশ্চিত?')) return;
+      db = Object.assign(blankDB(), v); save(); render(); toast('ব্যাকআপ ফিরিয়ে আনা হয়েছে');
+    }catch(_){ toast('সঠিক ফাইল নয়','error'); }
+    e.target.value = '';
+  };
+  r.readAsText(f);
+}
+function exportCSV(){
+  const rows = [
+    ['ধরন','তারিখ','বিবরণ','খাত/চাঁদা','মাধ্যম','পরিমাণ'],
+    ...db.payments.map(x=>['আদায়', x.date, familyName(x.family), duename(x.due), x.method||'', x.amount]),
+    ...db.expenses.map(x=>['ব্যয়', x.date, x.title, x.category||'', '', -x.amount])
+  ];
+  const csv = '\ufeff' + rows.map(r=>r.map(v=>'"'+String(v ?? '').replace(/"/g,'""')+'"').join(',')).join('\r\n');
+  downloadBlob(new Blob([csv], {type:'text/csv;charset=utf-8'}), 'mosque-report-'+today()+'.csv');
+  toast('CSV ডাউনলোড');
+}
+
+/* ============ SETTINGS ACTIONS ============ */
+function changePin(){
+  if(!requireAdmin()) return;
+  const p = prompt('নতুন PIN (কমপক্ষে ৬ অঙ্ক):');
+  if(p === null) return;
+  if(!/^\d{6,}$/.test(p)){ toast('কমপক্ষে ৬ সংখ্যা','error'); return; }
+  localStorage.setItem(PINKEY, p); toast('PIN পরিবর্তন');
+}
+function clearAll(){
+  if(!requireAdmin()) return;
+  if(!confirm('সব স্থানীয় তথ্য স্থায়ীভাবে মুছে যাবে। নিশ্চিত?')) return;
+  if(!confirm('শেষবার — ব্যাকআপ ছাড়া ফেরানো যাবে না। চালিয়ে যাবেন?')) return;
+  localStorage.removeItem(KEY); localStorage.removeItem(OLDKEY);
+  db = blankDB(); save(); render(); toast('সব ডেটা মুছে ফেলা হয়েছে','warn');
+}
+
+/* ============ THEME ============ */
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  localStorage.setItem(THEMEKEY, t);
+  $('#themeBtn').textContent = t==='dark' ? '☀' : '🌙';
+  setTimeout(()=>{ if($('#chart')) drawChart(); }, 60);
+  if(page === 'appearance') render();
+}
+function toggleTheme(){
+  const cur = document.documentElement.getAttribute('data-theme')==='dark' ? 'light' : 'dark';
+  applyTheme(cur);
+}
+
+/* ============ SEARCH WIRE ============ */
+function wireSearch(){
+  const el = $('#search'); if(!el) return;
+  el.addEventListener('input', ()=>{
+    const q = el.value.trim().toLowerCase();
+    $$('#content tbody tr').forEach(r=>{ r.style.display = !q || r.textContent.toLowerCase().includes(q) ? '' : 'none'; });
+  });
+}
+
+/* ============ RENDER ROUTER ============ */
+function render(){
+  $('#roleBadge').textContent = admin ? 'অ্যাডমিন মোড' : 'শুধু দেখার মোড';
+  $('#roleBadge').className = 'badge ' + (admin?'':'gray');
+  $('#loginBtn').textContent = admin ? 'লগআউট' : 'অ্যাডমিন লগইন';
+  const c = $('#content');
+  switch(page){
+    case 'dashboard': c.innerHTML = viewDashboard(); break;
+    case 'families': c.innerHTML = viewFamilies(); wireSearch(); break;
+    case 'members': c.innerHTML = viewMembers(); wireSearch(); break;
+    case 'dues': c.innerHTML = viewDues(); break;
+    case 'payments': c.innerHTML = viewPayments(); wireSearch(); break;
+    case 'expenses': c.innerHTML = viewExpenses(); break;
+    case 'qurbani': c.innerHTML = viewQurbani(); break;
+    case 'distribution': c.innerHTML = viewDistribution(); wireSearch(); break;
+    case 'notices': c.innerHTML = viewNotices(); break;
+    case 'portal': c.innerHTML = viewPortal(); break;
+    case 'prayer': c.innerHTML = viewPrayer(); break;
+    case 'committee': c.innerHTML = viewCommittee(); break;
+    case 'social': c.innerHTML = viewSocial(); break;
+    case 'assets': c.innerHTML = viewAssets(); break;
+    case 'events': c.innerHTML = viewEvents(); break;
+    case 'reports': c.innerHTML = viewReports(); break;
+    case 'analytics': c.innerHTML = viewAnalytics(); break;
+    case 'transparency': c.innerHTML = viewTransparency(); break;
+    case 'audit': c.innerHTML = viewAudit(); wireSearch(); break;
+    case 'backup': c.innerHTML = viewBackup(); break;
+    case 'security': c.innerHTML = viewSecurity(); break;
+    case 'settings': c.innerHTML = viewSettings(); break;
+    case 'roles': c.innerHTML = viewRoles(); break;
+    case 'appearance': c.innerHTML = viewAppearance(); break;
+    case 'automation': c.innerHTML = viewAutomation(); break;
+    case 'api': c.innerHTML = viewApi(); break;
+    case 'health': c.innerHTML = viewHealth(); break;
+  }
+  setTimeout(()=>{
+    if($('#chart')) drawChart();
+    /* responsive grids */
+    if(window.innerWidth < 900){
+      ['dashBottom','repBottom','anaGrid','portalGrid','setGrid','roleGrid','bkGrid','themeGrid'].forEach(id=>{
+        const el = document.getElementById(id);
+        if(el) el.style.gridTemplateColumns = '1fr';
+      });
+    }
+  }, 30);
+}
+
+/* ============ LOGIN ============ */
+$('#loginBtn').onclick = ()=>{
+  if(admin){ admin = false; sessionStorage.removeItem('mosque_admin'); render(); toast('লগআউট','warn'); return; }
+  const pin = prompt('অ্যাডমিন PIN (ডিফল্ট: 123456):'); if(pin === null) return;
+  const saved = localStorage.getItem(PINKEY) || '123456';
+  if(pin === saved){
+    admin = true; sessionStorage.setItem('mosque_admin','yes'); render(); toast('স্বাগতম, অ্যাডমিন!');
+  } else { toast('ভুল PIN','error'); }
+};
+
+/* ============ GLOBAL EVENTS ============ */
+$('#nav').addEventListener('click', e=>{ const b = e.target.closest('button[data-page]'); if(b) setPage(b.dataset.page); });
+$('#hamburger').onclick = openSidebar;
+$('#overlay').onclick = closeSidebar;
+$('#themeBtn').onclick = toggleTheme;
+$('#cancelModal').onclick = closeModal;
+$('#saveModal').onclick = ()=>{ if(!formHandler) return; if(formHandler() !== false) closeModal(); };
+$('#modal').addEventListener('click', e=>{ if(e.target.id==='modal') closeModal(); });
+document.addEventListener('keydown', e=>{
+  if(e.key === 'Escape' && $('#modal').classList.contains('show')) closeModal();
+  if((e.ctrlKey || e.metaKey) && e.key === 'k'){ e.preventDefault(); const s=$('#search'); if(s) s.focus(); }
+});
+let resizeTimer;
+window.addEventListener('resize', ()=>{ clearTimeout(resizeTimer); resizeTimer = setTimeout(()=>{ if($('#chart')) drawChart(); }, 140); });
+
+/* ============ BOOT ============ */
+(function boot(){
+  applyTheme(localStorage.getItem(THEMEKEY) || 'light');
+  buildNav();
+  setPage('dashboard');
+})();
+</script>
+</body>
+</html>

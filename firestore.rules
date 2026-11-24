@@ -1,0 +1,894 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global safety net: default deny everything
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- GLOBAL HARDENED HELPERS ---
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isBootstrappedAdmin() {
+      return isSignedIn() &&
+        request.auth.token.email == 'aliakbor1624@gmail.com' &&
+        request.auth.token.email_verified == true;
+    }
+
+    function hasProfile() {
+      return isSignedIn() &&
+        exists(/databases/$(database)/documents/profiles/$(request.auth.uid));
+    }
+
+    function userRole() {
+      return get(/databases/$(database)/documents/profiles/$(request.auth.uid)).data.role;
+    }
+
+    function isSuperAdmin() {
+      return isBootstrappedAdmin() || (hasProfile() && userRole() == 'super_admin');
+    }
+
+    function isFullAdmin() {
+      return isSuperAdmin() || (hasProfile() && userRole() == 'admin');
+    }
+
+    function isFinanceAdmin() {
+      return isFullAdmin() || (hasProfile() && userRole() == 'accountant');
+    }
+
+    function isOpsManager() {
+      return isFullAdmin() || (hasProfile() && userRole() == 'manager');
+    }
+
+    function isStaffReader() {
+      return isFullAdmin() || (hasProfile() && userRole() in ['accountant', 'manager', 'viewer']);
+    }
+
+    function isAnyStaffWriter() {
+      return isFinanceAdmin() || isOpsManager();
+    }
+
+    function isLinkedFamilyDoc(famData, familyId) {
+      return isSignedIn() && (
+        ('linkedEmail' in famData &&
+          request.auth.token.email_verified == true &&
+          famData.linkedEmail == request.auth.token.email) ||
+        (hasProfile() &&
+          'linkedFamilyId' in get(/databases/$(database)/documents/profiles/$(request.auth.uid)).data &&
+          get(/databases/$(database)/documents/profiles/$(request.auth.uid)).data.linkedFamilyId == familyId)
+      );
+    }
+
+    function isMyLinkedFamilyId(familyId) {
+      return isSignedIn() && (
+        (hasProfile() &&
+          'linkedFamilyId' in get(/databases/$(database)/documents/profiles/$(request.auth.uid)).data &&
+          get(/databases/$(database)/documents/profiles/$(request.auth.uid)).data.linkedFamilyId == familyId) ||
+        (exists(/databases/$(database)/documents/families/$(familyId)) &&
+          'linkedEmail' in get(/databases/$(database)/documents/families/$(familyId)).data &&
+          request.auth.token.email_verified == true &&
+          get(/databases/$(database)/documents/families/$(familyId)).data.linkedEmail == request.auth.token.email)
+      );
+    }
+
+    // --- ENTITY VALIDATION BLUEPRINTS ---
+
+    function isValidProfile(data) {
+      return data.userId is string && isValidId(data.userId) &&
+        data.fullName is string && data.fullName.size() >= 1 && data.fullName.size() <= 80 &&
+        data.email is string && data.email.size() >= 3 && data.email.size() <= 120 &&
+        data.role in ['super_admin', 'admin', 'accountant', 'manager', 'viewer', 'member'] &&
+        (!('linkedFamilyId' in data) || (data.linkedFamilyId is string && isValidId(data.linkedFamilyId))) &&
+        data.createdAt is timestamp && data.createdAt <= request.time &&
+        data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidPublicSummary(data) {
+      return data.totalFamilies is int && data.totalFamilies >= 0 &&
+        data.totalMembers is int && data.totalMembers >= 0 &&
+        data.totalCollection is number && data.totalCollection >= 0 &&
+        (!('totalDonations' in data) || (data.totalDonations is number && data.totalDonations >= 0)) &&
+        data.totalExpense is number && data.totalExpense >= 0 &&
+        (!('totalWelfare' in data) || (data.totalWelfare is number && data.totalWelfare >= 0)) &&
+        (!('totalOutstanding' in data) || (data.totalOutstanding is number && data.totalOutstanding >= 0)) &&
+        (!('totalQurbaniMeatKg' in data) || (data.totalQurbaniMeatKg is number && data.totalQurbaniMeatKg >= 0)) &&
+        (!('totalDistributions' in data) || (data.totalDistributions is int && data.totalDistributions >= 0)) &&
+        (!('deliveredDistributions' in data) || (data.deliveredDistributions is int && data.deliveredDistributions >= 0)) &&
+        (!('latestQurbaniEvent' in data) || (data.latestQurbaniEvent is string && data.latestQurbaniEvent.size() <= 120)) &&
+        (!('latestTotalMeatKg' in data) || (data.latestTotalMeatKg is number && data.latestTotalMeatKg >= 0)) &&
+        (!('latestPerFamilyKg' in data) || (data.latestPerFamilyKg is number && data.latestPerFamilyKg >= 0)) &&
+        (!('recentMonths' in data) || (data.recentMonths is list && data.recentMonths.size() <= 6 && (data.recentMonths.size() == 0 || data.recentMonths[0] is string))) &&
+        (!('recentCollections' in data) || (data.recentCollections is list && data.recentCollections.size() <= 6 && (data.recentCollections.size() == 0 || data.recentCollections[0] is number))) &&
+        (!('recentExpenses' in data) || (data.recentExpenses is list && data.recentExpenses.size() <= 6 && (data.recentExpenses.size() == 0 || data.recentExpenses[0] is number))) &&
+        data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidMosqueSchedule(data) {
+      return data.mosqueName is string && data.mosqueName.size() >= 1 && data.mosqueName.size() <= 120 &&
+        data.fajrTime is string && data.fajrTime.size() <= 20 &&
+        (!('sunriseTime' in data) || (data.sunriseTime is string && data.sunriseTime.size() <= 20)) &&
+        data.dhuhrTime is string && data.dhuhrTime.size() <= 20 &&
+        data.asrTime is string && data.asrTime.size() <= 20 &&
+        data.maghribTime is string && data.maghribTime.size() <= 20 &&
+        data.ishaTime is string && data.ishaTime.size() <= 20 &&
+        data.jumuahTime is string && data.jumuahTime.size() <= 30 &&
+        (!('khutbahTopic' in data) || (data.khutbahTopic is string && data.khutbahTopic.size() <= 200)) &&
+        (!('sehriEnd' in data) || (data.sehriEnd is string && data.sehriEnd.size() <= 20)) &&
+        (!('iftarTime' in data) || (data.iftarTime is string && data.iftarTime.size() <= 20)) &&
+        (!('imamName' in data) || (data.imamName is string && data.imamName.size() <= 100)) &&
+        (!('imamPhone' in data) || (data.imamPhone is string && data.imamPhone.size() <= 30)) &&
+        (!('muazzinName' in data) || (data.muazzinName is string && data.muazzinName.size() <= 100)) &&
+        (!('muazzinPhone' in data) || (data.muazzinPhone is string && data.muazzinPhone.size() <= 30)) &&
+        (!('updatedBy' in data) || isValidId(data.updatedBy)) &&
+        data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidNotice(data) {
+      return data.title is string && data.title.size() >= 1 && data.title.size() <= 120 &&
+        data.content is string && data.content.size() >= 1 && data.content.size() <= 2000 &&
+        data.category in ['general', 'prayer', 'finance', 'qurbani'] &&
+        (!('pinned' in data) || data.pinned is bool) &&
+        data.authorUid is string && isValidId(data.authorUid) &&
+        data.authorName is string && data.authorName.size() >= 1 && data.authorName.size() <= 80 &&
+        data.createdAt is timestamp && data.createdAt <= request.time &&
+        data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidFamily(data) {
+      return data.familyName is string && data.familyName.size() >= 1 && data.familyName.size() <= 100 &&
+        (!('phone' in data) || (data.phone is string && data.phone.size() <= 30)) &&
+        (!('address' in data) || (data.address is string && data.address.size() <= 200)) &&
+        (!('linkedEmail' in data) || (data.linkedEmail is string && data.linkedEmail.size() <= 120)) &&
+        data.familyCode is string && data.familyCode.size() >= 1 && data.familyCode.size() <= 30 &&
+        data.active is bool &&
+        data.createdBy is string && isValidId(data.createdBy) &&
+        data.createdAt is timestamp && data.createdAt <= request.time &&
+        data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidMember(data) {
+      return data.familyId is string && isValidId(data.familyId) &&
+        data.familyName is string && data.familyName.size() >= 1 && data.familyName.size() <= 100 &&
+        data.memberName is string && data.memberName.size() >= 1 && data.memberName.size() <= 100 &&
+        (!('phone' in data) || (data.phone is string && data.phone.size() <= 30)) &&
+        (!('relation' in data) || (data.relation is string && data.relation.size() <= 40)) &&
+        (!('occupation' in data) || (data.occupation is string && data.occupation.size() <= 60)) &&
+        data.head is bool &&
+        data.active is bool &&
+        data.createdBy is string && isValidId(data.createdBy) &&
+        data.createdAt is timestamp && data.createdAt <= request.time &&
+        data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidDue(data) {
+      return data.title is string && data.title.size() >= 1 && data.title.size() <= 100 &&
+        data.dueType in ['monthly', 'yearly', 'special'] &&
+        data.amount is number && data.amount >= 0 &&
+        data.dueMonth is int && data.dueMonth >= 0 && data.dueMonth <= 12 &&
+        data.dueYear is int && data.dueYear >= 2000 && data.dueYear <= 2100 &&
+        (!('active' in data) || data.active is bool) &&
+        data.createdBy is string && isValidId(data.createdBy) &&
+        data.createdAt is timestamp && data.createdAt <= request.time &&
+        data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidPayment(data) {
+      return data.familyId is string && isValidId(data.familyId) &&
+        data.familyName is string && data.familyName.size() >= 1 && data.familyName.size() <= 100 &&
+        (!('dueId' in data) || (data.dueId is string && data.dueId.size() <= 128)) &&
+        (!('dueTitle' in data) || (data.dueTitle is string && data.dueTitle.size() <= 100)) &&
+        (!('accountId' in data) || (data.accountId is string && isValidId(data.accountId))) &&
+        (!('accountName' in data) || (data.accountName is string && data.accountName.size() <= 100)) &&
+        data.amount is number && data.amount > 0 &&
+        data.paymentMethod in ['cash', 'bkash', 'nagad', 'bank'] &&
+        data.receiptNo is string && data.receiptNo.size() >= 1 && data.receiptNo.size() <= 50 &&
+        data.paymentDate is string && data.paymentDate.size() >= 1 && data.paymentDate.size() <= 20 &&
+        (!('note' in data) || (data.note is string && data.note.size() <= 300)) &&
+        data.createdBy is string && isValidId(data.createdBy) &&
+        data.createdAt is timestamp && data.createdAt <= request.time &&
+        data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidDonation(data) {
+      return data.donorName is string && data.donorName.size() >= 1 && data.donorName.size() <= 100 &&
+        data.anonymous is bool &&
+        data.fundType in ['general', 'zakat', 'fitrah', 'sadqah', 'construction', 'orphan_welfare'] &&
+        data.amount is number && data.amount > 0 &&
+        data.paymentMethod in ['cash', 'bkash', 'nagad', 'bank'] &&
+        (!('transactionRef' in data) || (data.transactionRef is string && data.transactionRef.size() <= 80)) &&
+        (!('accountId' in data) || (data.accountId is string && isValidId(data.accountId))) &&
+        (!('accountName' in data) || (data.accountName is string && data.accountName.size() <= 100)) &&
+        data.receiptNo is string && data.receiptNo.size() >= 1 && data.receiptNo.size() <= 50 &&
+        data.donationDate is string && data.donationDate.size() >= 1 && data.donationDate.size() <= 20 &&
+        (!('note' in data) || (data.note is string && data.note.size() <= 300)) &&
+        data.createdBy is string && isValidId(data.createdBy) &&
+        data.createdAt is timestamp && data.createdAt <= request.time &&
+        data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidExpense(data) {
+      return data.title is string && data.title.size() >= 1 && data.title.size() <= 120 &&
+        data.category is string && data.category.size() >= 1 && data.category.size() <= 50 &&
+        (!('voucherNo' in data) || (data.voucherNo is string && data.voucherNo.size() <= 50)) &&
+        (!('accountId' in data) || (data.accountId is string && isValidId(data.accountId))) &&
+        (!('accountName' in data) || (data.accountName is string && data.accountName.size() <= 100)) &&
+        data.amount is number && data.amount > 0 &&
+        data.expenseDate is string && data.expenseDate.size() >= 1 && data.expenseDate.size() <= 20 &&
+        (!('note' in data) || (data.note is string && data.note.size() <= 300)) &&
+        data.createdBy is string && isValidId(data.createdBy) &&
+        data.createdAt is timestamp && data.createdAt <= request.time &&
+        data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidBankAccount(data) {
+      return data.accountName is string && data.accountName.size() >= 1 && data.accountName.size() <= 100 &&
+        data.accountType in ['cash', 'bank', 'bkash', 'nagad'] &&
+        (!('accountNumber' in data) || (data.accountNumber is string && data.accountNumber.size() <= 50)) &&
+        data.balance is number &&
+        data.active is bool &&
+        data.createdBy is string && isValidId(data.createdBy) &&
+        data.createdAt is timestamp && data.createdAt <= request.time &&
+        data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidBudget(data) {
+      return data.category is string && data.category.size() >= 1 && data.category.size() <= 50 &&
+        data.periodLabel is string && data.periodLabel.size() >= 1 && data.periodLabel.size() <= 30 &&
+        data.budgetAmount is number && data.budgetAmount >= 0 &&
+        data.createdBy is string && isValidId(data.createdBy) &&
+        data.createdAt is timestamp && data.createdAt <= request.time &&
+        data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidQurbaniBatch(data) {
+      return data.eventName is string && data.eventName.size() >= 1 && data.eventName.size() <= 120 &&
+        (!('animalInfo' in data) || (data.animalInfo is string && data.animalInfo.size() <= 150)) &&
+        (!('purchaseCost' in data) || (data.purchaseCost is number && data.purchaseCost >= 0)) &&
+        data.totalMeatKg is number && data.totalMeatKg >= 0 &&
+        data.totalFamilies is int && data.totalFamilies >= 0 &&
+        data.distributionPerFamily is number && data.distributionPerFamily >= 0 &&
+        data.eventDate is string && data.eventDate.size() >= 1 && data.eventDate.size() <= 20 &&
+        data.status in ['draft', 'distributing', 'completed'] &&
+        data.createdBy is string && isValidId(data.createdBy) &&
+        data.createdAt is timestamp && data.createdAt <= request.time &&
+        data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidMeatDistribution(data) {
+      return data.batchId is string && isValidId(data.batchId) &&
+        data.familyId is string && isValidId(data.familyId) &&
+        data.familyName is string && data.familyName.size() >= 1 && data.familyName.size() <= 100 &&
+        data.familyCode is string && data.familyCode.size() >= 1 && data.familyCode.size() <= 30 &&
+        data.allocatedKg is number && data.allocatedKg >= 0 &&
+        data.deliveredKg is number && data.deliveredKg >= 0 &&
+        (!('receivedBy' in data) || (data.receivedBy is string && data.receivedBy.size() <= 100)) &&
+        (!('receivedAt' in data) || (data.receivedAt is timestamp && data.receivedAt <= request.time)) &&
+        data.status in ['pending', 'delivered'] &&
+        data.createdBy is string && isValidId(data.createdBy) &&
+        data.createdAt is timestamp && data.createdAt <= request.time &&
+        data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidMeeting(data) {
+      return data.title is string && data.title.size() >= 1 && data.title.size() <= 120 &&
+        data.meetingDate is string && data.meetingDate.size() >= 1 && data.meetingDate.size() <= 20 &&
+        (!('meetingTime' in data) || (data.meetingTime is string && data.meetingTime.size() <= 20)) &&
+        (!('location' in data) || (data.location is string && data.location.size() <= 150)) &&
+        (!('agenda' in data) || (data.agenda is string && data.agenda.size() <= 1000)) &&
+        (!('attendees' in data) || (data.attendees is string && data.attendees.size() <= 500)) &&
+        data.decisions is string && data.decisions.size() >= 1 && data.decisions.size() <= 2000 &&
+        (!('assignedTo' in data) || (data.assignedTo is string && data.assignedTo.size() <= 100)) &&
+        (!('deadline' in data) || (data.deadline is string && data.deadline.size() <= 20)) &&
+        data.status in ['scheduled', 'in_progress', 'completed'] &&
+        data.createdBy is string && isValidId(data.createdBy) &&
+        data.createdAt is timestamp && data.createdAt <= request.time &&
+        data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidCommitteeMember(data) {
+      return data.name is string && data.name.size() >= 1 && data.name.size() <= 100 &&
+        data.role is string && data.role.size() >= 1 && data.role.size() <= 80 &&
+        (!('phone' in data) || (data.phone is string && data.phone.size() <= 30)) &&
+        (!('familyId' in data) || (data.familyId is string && isValidId(data.familyId))) &&
+        (!('familyName' in data) || (data.familyName is string && data.familyName.size() <= 100)) &&
+        (!('term' in data) || (data.term is string && data.term.size() <= 40)) &&
+        data.active is bool &&
+        data.createdBy is string && isValidId(data.createdBy) &&
+        data.createdAt is timestamp && data.createdAt <= request.time &&
+        data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidSocietyEvent(data) {
+      return data.title is string && data.title.size() >= 1 && data.title.size() <= 120 &&
+        data.eventDate is string && data.eventDate.size() >= 1 && data.eventDate.size() <= 20 &&
+        (!('eventTime' in data) || (data.eventTime is string && data.eventTime.size() <= 20)) &&
+        (!('location' in data) || (data.location is string && data.location.size() <= 150)) &&
+        data.eventType in ['religious', 'social', 'education', 'informational'] &&
+        (!('description' in data) || (data.description is string && data.description.size() <= 1500)) &&
+        (!('rsvpEnabled' in data) || data.rsvpEnabled is bool) &&
+        data.createdBy is string && isValidId(data.createdBy) &&
+        data.createdAt is timestamp && data.createdAt <= request.time &&
+        data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidSocietyAsset(data) {
+      return data.name is string && data.name.size() >= 1 && data.name.size() <= 120 &&
+        data.category is string && data.category.size() >= 1 && data.category.size() <= 60 &&
+        data.value is number && data.value >= 0 &&
+        (!('purchaseDate' in data) || (data.purchaseDate is string && data.purchaseDate.size() <= 20)) &&
+        data.condition in ['good', 'needs_repair', 'damaged'] &&
+        (!('location' in data) || (data.location is string && data.location.size() <= 150)) &&
+        (!('note' in data) || (data.note is string && data.note.size() <= 400)) &&
+        data.createdBy is string && isValidId(data.createdBy) &&
+        data.createdAt is timestamp && data.createdAt <= request.time &&
+        data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidSocietyDocument(data) {
+      return data.title is string && data.title.size() >= 1 && data.title.size() <= 120 &&
+        data.category is string && data.category.size() >= 1 && data.category.size() <= 60 &&
+        data.docDate is string && data.docDate.size() >= 1 && data.docDate.size() <= 20 &&
+        (!('fileName' in data) || (data.fileName is string && data.fileName.size() <= 150)) &&
+        (!('note' in data) || (data.note is string && data.note.size() <= 500)) &&
+        data.createdBy is string && isValidId(data.createdBy) &&
+        data.createdAt is timestamp && data.createdAt <= request.time &&
+        data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidWelfareRecord(data) {
+      return data.recordType in ['medical', 'zakat_aid', 'emergency_relief', 'education', 'burial'] &&
+        data.beneficiaryName is string && data.beneficiaryName.size() >= 1 && data.beneficiaryName.size() <= 100 &&
+        (!('phone' in data) || (data.phone is string && data.phone.size() <= 30)) &&
+        (!('plotNumber' in data) || (data.plotNumber is string && data.plotNumber.size() <= 40)) &&
+        data.amount is number && data.amount >= 0 &&
+        (!('accountId' in data) || (data.accountId is string && isValidId(data.accountId))) &&
+        (!('accountName' in data) || (data.accountName is string && data.accountName.size() <= 100)) &&
+        data.recordDate is string && data.recordDate.size() >= 1 && data.recordDate.size() <= 20 &&
+        (!('note' in data) || (data.note is string && data.note.size() <= 400)) &&
+        data.createdBy is string && isValidId(data.createdBy) &&
+        data.createdAt is timestamp && data.createdAt <= request.time &&
+        data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidComplaint(data) {
+      return data.authorUid is string && isValidId(data.authorUid) &&
+        data.authorName is string && data.authorName.size() >= 1 && data.authorName.size() <= 80 &&
+        (!('familyId' in data) || (data.familyId is string && isValidId(data.familyId))) &&
+        data.subject is string && data.subject.size() >= 1 && data.subject.size() <= 120 &&
+        data.message is string && data.message.size() >= 1 && data.message.size() <= 1500 &&
+        data.status in ['open', 'reviewed', 'resolved'] &&
+        (!('adminReply' in data) || (data.adminReply is string && data.adminReply.size() <= 1000)) &&
+        data.createdAt is timestamp && data.createdAt <= request.time &&
+        data.updatedAt is timestamp && data.updatedAt <= request.time;
+    }
+
+    function isValidAuditLog(data) {
+      return data.userId is string && isValidId(data.userId) &&
+        (!('userEmail' in data) || (data.userEmail is string && data.userEmail.size() <= 120)) &&
+        data.action is string && data.action.size() >= 1 && data.action.size() <= 100 &&
+        data.tableName is string && data.tableName.size() >= 1 && data.tableName.size() <= 50 &&
+        (!('recordId' in data) || (data.recordId is string && data.recordId.size() <= 128)) &&
+        (!('summary' in data) || (data.summary is string && data.summary.size() <= 250)) &&
+        (!('beforeSummary' in data) || (data.beforeSummary is string && data.beforeSummary.size() <= 300)) &&
+        (!('afterSummary' in data) || (data.afterSummary is string && data.afterSummary.size() <= 300)) &&
+        data.createdAt is timestamp && data.createdAt <= request.time;
+    }
+
+    // --- COLLECTION RULES ---
+
+    match /profiles/{userId} {
+      allow get: if isSignedIn() && isValidId(userId) && (isOwner(userId) || isStaffReader());
+      allow list: if isFullAdmin();
+
+      allow create: if isSignedIn() &&
+        isValidId(userId) &&
+        isOwner(userId) &&
+        incoming().userId == request.auth.uid &&
+        incoming().keys().hasAll(['userId', 'fullName', 'email', 'role', 'createdAt', 'updatedAt']) &&
+        incoming().keys().hasOnly(['userId', 'fullName', 'email', 'role', 'linkedFamilyId', 'createdAt', 'updatedAt']) &&
+        isValidProfile(incoming()) &&
+        (
+          incoming().role == 'member' ||
+          (incoming().role in ['super_admin', 'admin'] && isBootstrappedAdmin())
+        );
+
+      allow update: if isSignedIn() &&
+        isValidId(userId) &&
+        isValidProfile(incoming()) &&
+        incoming().userId == existing().userId &&
+        incoming().email == existing().email &&
+        incoming().createdAt == existing().createdAt &&
+        (
+          (
+            isFullAdmin() &&
+            incoming().diff(existing()).affectedKeys().hasOnly(['fullName', 'role', 'linkedFamilyId', 'updatedAt']) &&
+            (incoming().role != 'super_admin' || isSuperAdmin())
+          ) ||
+          (
+            isOwner(userId) &&
+            incoming().role == existing().role &&
+            incoming().diff(existing()).affectedKeys().hasOnly(['fullName', 'linkedFamilyId', 'updatedAt']) &&
+            (!('linkedFamilyId' in incoming().diff(existing()).affectedKeys()) ||
+              (exists(/databases/$(database)/documents/families/$(incoming().linkedFamilyId)) &&
+               'linkedEmail' in get(/databases/$(database)/documents/families/$(incoming().linkedFamilyId)).data &&
+               request.auth.token.email_verified == true &&
+               get(/databases/$(database)/documents/families/$(incoming().linkedFamilyId)).data.linkedEmail == request.auth.token.email))
+          )
+        );
+
+      allow delete: if isSuperAdmin() && isValidId(userId);
+    }
+
+    match /public_summary/{docId} {
+      allow get: if isValidId(docId);
+      allow list: if true;
+
+      allow create: if isAnyStaffWriter() &&
+        isValidId(docId) &&
+        incoming().keys().hasAll(['totalFamilies', 'totalMembers', 'totalCollection', 'totalExpense', 'updatedAt']) &&
+        incoming().keys().hasOnly([
+          'totalFamilies', 'totalMembers', 'totalCollection', 'totalDonations', 'totalExpense',
+          'totalWelfare', 'totalOutstanding', 'totalQurbaniMeatKg', 'totalDistributions',
+          'deliveredDistributions', 'latestQurbaniEvent', 'latestTotalMeatKg', 'latestPerFamilyKg',
+          'recentMonths', 'recentCollections', 'recentExpenses', 'updatedAt'
+        ]) &&
+        isValidPublicSummary(incoming());
+
+      allow update: if isAnyStaffWriter() &&
+        isValidId(docId) &&
+        isValidPublicSummary(incoming()) &&
+        incoming().diff(existing()).affectedKeys().hasOnly([
+          'totalFamilies', 'totalMembers', 'totalCollection', 'totalDonations', 'totalExpense',
+          'totalWelfare', 'totalOutstanding', 'totalQurbaniMeatKg', 'totalDistributions',
+          'deliveredDistributions', 'latestQurbaniEvent', 'latestTotalMeatKg', 'latestPerFamilyKg',
+          'recentMonths', 'recentCollections', 'recentExpenses', 'updatedAt'
+        ]);
+
+      allow delete: if isFullAdmin() && isValidId(docId);
+    }
+
+    match /mosque_schedule/{docId} {
+      allow get: if isValidId(docId);
+      allow list: if true;
+
+      allow create, update: if isOpsManager() &&
+        isValidId(docId) &&
+        incoming().keys().hasAll(['mosqueName', 'fajrTime', 'dhuhrTime', 'asrTime', 'maghribTime', 'ishaTime', 'jumuahTime', 'updatedAt']) &&
+        incoming().keys().hasOnly([
+          'mosqueName', 'fajrTime', 'sunriseTime', 'dhuhrTime', 'asrTime', 'maghribTime', 'ishaTime',
+          'jumuahTime', 'khutbahTopic', 'sehriEnd', 'iftarTime',
+          'imamName', 'imamPhone', 'muazzinName', 'muazzinPhone', 'updatedBy', 'updatedAt'
+        ]) &&
+        isValidMosqueSchedule(incoming());
+
+      allow delete: if isFullAdmin() && isValidId(docId);
+    }
+
+    match /notices/{noticeId} {
+      allow get: if isValidId(noticeId);
+      allow list: if true;
+
+      allow create: if isOpsManager() &&
+        isValidId(noticeId) &&
+        incoming().authorUid == request.auth.uid &&
+        incoming().keys().hasAll(['title', 'content', 'category', 'authorUid', 'authorName', 'createdAt', 'updatedAt']) &&
+        incoming().keys().hasOnly(['title', 'content', 'category', 'pinned', 'authorUid', 'authorName', 'createdAt', 'updatedAt']) &&
+        isValidNotice(incoming());
+
+      allow update: if isOpsManager() &&
+        isValidId(noticeId) &&
+        isValidNotice(incoming()) &&
+        incoming().authorUid == existing().authorUid &&
+        incoming().authorName == existing().authorName &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['title', 'content', 'category', 'pinned', 'updatedAt']);
+
+      allow delete: if isOpsManager() && isValidId(noticeId);
+    }
+
+    match /families/{familyId} {
+      allow get: if isValidId(familyId) && (isStaffReader() || isLinkedFamilyDoc(resource.data, familyId));
+      allow list: if isStaffReader() || isLinkedFamilyDoc(resource.data, resource.id);
+
+      allow create: if isOpsManager() &&
+        isValidId(familyId) &&
+        incoming().createdBy == request.auth.uid &&
+        incoming().keys().hasAll(['familyName', 'familyCode', 'active', 'createdBy', 'createdAt', 'updatedAt']) &&
+        incoming().keys().hasOnly(['familyName', 'phone', 'address', 'familyCode', 'linkedEmail', 'active', 'createdBy', 'createdAt', 'updatedAt']) &&
+        isValidFamily(incoming());
+
+      allow update: if isOpsManager() &&
+        isValidId(familyId) &&
+        isValidFamily(incoming()) &&
+        incoming().createdBy == existing().createdBy &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['familyName', 'phone', 'address', 'familyCode', 'linkedEmail', 'active', 'updatedAt']);
+
+      allow delete: if isFullAdmin() && isValidId(familyId);
+    }
+
+    match /members/{memberId} {
+      allow get: if isValidId(memberId) && (isStaffReader() || isMyLinkedFamilyId(resource.data.familyId));
+      allow list: if isStaffReader() || isMyLinkedFamilyId(resource.data.familyId);
+
+      allow create: if isOpsManager() &&
+        isValidId(memberId) &&
+        incoming().createdBy == request.auth.uid &&
+        incoming().keys().hasAll(['familyId', 'familyName', 'memberName', 'head', 'active', 'createdBy', 'createdAt', 'updatedAt']) &&
+        incoming().keys().hasOnly(['familyId', 'familyName', 'memberName', 'phone', 'relation', 'occupation', 'head', 'active', 'createdBy', 'createdAt', 'updatedAt']) &&
+        isValidMember(incoming()) &&
+        (exists(/databases/$(database)/documents/families/$(incoming().familyId)) ||
+         existsAfter(/databases/$(database)/documents/families/$(incoming().familyId)));
+
+      allow update: if isOpsManager() &&
+        isValidId(memberId) &&
+        isValidMember(incoming()) &&
+        incoming().createdBy == existing().createdBy &&
+        incoming().familyId == existing().familyId &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['familyName', 'memberName', 'phone', 'relation', 'occupation', 'head', 'active', 'updatedAt']);
+
+      allow delete: if isOpsManager() && isValidId(memberId);
+    }
+
+    match /dues/{dueId} {
+      allow get: if isValidId(dueId) && (isStaffReader() || isSignedIn());
+      allow list: if isStaffReader() || isSignedIn();
+
+      allow create: if isFinanceAdmin() &&
+        isValidId(dueId) &&
+        incoming().createdBy == request.auth.uid &&
+        incoming().keys().hasAll(['title', 'dueType', 'amount', 'dueMonth', 'dueYear', 'createdBy', 'createdAt', 'updatedAt']) &&
+        incoming().keys().hasOnly(['title', 'dueType', 'amount', 'dueMonth', 'dueYear', 'active', 'createdBy', 'createdAt', 'updatedAt']) &&
+        isValidDue(incoming());
+
+      allow update: if isFinanceAdmin() &&
+        isValidId(dueId) &&
+        isValidDue(incoming()) &&
+        incoming().createdBy == existing().createdBy &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['title', 'dueType', 'amount', 'dueMonth', 'dueYear', 'active', 'updatedAt']);
+
+      allow delete: if isFinanceAdmin() && isValidId(dueId);
+    }
+
+    match /payments/{paymentId} {
+      allow get: if isValidId(paymentId) && (isStaffReader() || isMyLinkedFamilyId(resource.data.familyId));
+      allow list: if isStaffReader() || isMyLinkedFamilyId(resource.data.familyId);
+
+      allow create: if isFinanceAdmin() &&
+        isValidId(paymentId) &&
+        incoming().createdBy == request.auth.uid &&
+        incoming().keys().hasAll(['familyId', 'familyName', 'amount', 'paymentMethod', 'receiptNo', 'paymentDate', 'createdBy', 'createdAt', 'updatedAt']) &&
+        incoming().keys().hasOnly(['familyId', 'familyName', 'dueId', 'dueTitle', 'accountId', 'accountName', 'amount', 'paymentMethod', 'receiptNo', 'paymentDate', 'note', 'createdBy', 'createdAt', 'updatedAt']) &&
+        isValidPayment(incoming()) &&
+        (exists(/databases/$(database)/documents/families/$(incoming().familyId)) ||
+         existsAfter(/databases/$(database)/documents/families/$(incoming().familyId)));
+
+      allow update: if isFinanceAdmin() &&
+        isValidId(paymentId) &&
+        isValidPayment(incoming()) &&
+        incoming().createdBy == existing().createdBy &&
+        incoming().familyId == existing().familyId &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['familyName', 'dueId', 'dueTitle', 'accountId', 'accountName', 'amount', 'paymentMethod', 'receiptNo', 'paymentDate', 'note', 'updatedAt']);
+
+      allow delete: if isFinanceAdmin() && isValidId(paymentId);
+    }
+
+    match /donations/{donationId} {
+      allow get: if isStaffReader() && isValidId(donationId);
+      allow list: if isStaffReader();
+
+      allow create: if isFinanceAdmin() &&
+        isValidId(donationId) &&
+        incoming().createdBy == request.auth.uid &&
+        incoming().keys().hasAll(['donorName', 'anonymous', 'fundType', 'amount', 'paymentMethod', 'receiptNo', 'donationDate', 'createdBy', 'createdAt', 'updatedAt']) &&
+        incoming().keys().hasOnly(['donorName', 'anonymous', 'fundType', 'amount', 'paymentMethod', 'transactionRef', 'accountId', 'accountName', 'receiptNo', 'donationDate', 'note', 'createdBy', 'createdAt', 'updatedAt']) &&
+        isValidDonation(incoming());
+
+      allow update: if isFinanceAdmin() &&
+        isValidId(donationId) &&
+        isValidDonation(incoming()) &&
+        incoming().createdBy == existing().createdBy &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['donorName', 'anonymous', 'fundType', 'amount', 'paymentMethod', 'transactionRef', 'accountId', 'accountName', 'receiptNo', 'donationDate', 'note', 'updatedAt']);
+
+      allow delete: if isFinanceAdmin() && isValidId(donationId);
+    }
+
+    match /expenses/{expenseId} {
+      allow get: if isStaffReader() && isValidId(expenseId);
+      allow list: if isStaffReader();
+
+      allow create: if isFinanceAdmin() &&
+        isValidId(expenseId) &&
+        incoming().createdBy == request.auth.uid &&
+        incoming().keys().hasAll(['title', 'category', 'amount', 'expenseDate', 'createdBy', 'createdAt', 'updatedAt']) &&
+        incoming().keys().hasOnly(['title', 'category', 'voucherNo', 'accountId', 'accountName', 'amount', 'expenseDate', 'note', 'createdBy', 'createdAt', 'updatedAt']) &&
+        isValidExpense(incoming());
+
+      allow update: if isFinanceAdmin() &&
+        isValidId(expenseId) &&
+        isValidExpense(incoming()) &&
+        incoming().createdBy == existing().createdBy &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['title', 'category', 'voucherNo', 'accountId', 'accountName', 'amount', 'expenseDate', 'note', 'updatedAt']);
+
+      allow delete: if isFinanceAdmin() && isValidId(expenseId);
+    }
+
+    match /bank_accounts/{accountId} {
+      allow get: if isStaffReader() && isValidId(accountId);
+      allow list: if isStaffReader();
+
+      allow create: if isFinanceAdmin() &&
+        isValidId(accountId) &&
+        incoming().createdBy == request.auth.uid &&
+        incoming().keys().hasAll(['accountName', 'accountType', 'balance', 'active', 'createdBy', 'createdAt', 'updatedAt']) &&
+        incoming().keys().hasOnly(['accountName', 'accountType', 'accountNumber', 'balance', 'active', 'createdBy', 'createdAt', 'updatedAt']) &&
+        isValidBankAccount(incoming());
+
+      allow update: if isFinanceAdmin() &&
+        isValidId(accountId) &&
+        isValidBankAccount(incoming()) &&
+        incoming().createdBy == existing().createdBy &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['accountName', 'accountType', 'accountNumber', 'balance', 'active', 'updatedAt']);
+
+      allow delete: if isFullAdmin() && isValidId(accountId);
+    }
+
+    match /budgets/{budgetId} {
+      allow get: if isStaffReader() && isValidId(budgetId);
+      allow list: if isStaffReader();
+
+      allow create: if isFinanceAdmin() &&
+        isValidId(budgetId) &&
+        incoming().createdBy == request.auth.uid &&
+        incoming().keys().hasAll(['category', 'periodLabel', 'budgetAmount', 'createdBy', 'createdAt', 'updatedAt']) &&
+        incoming().keys().hasOnly(['category', 'periodLabel', 'budgetAmount', 'createdBy', 'createdAt', 'updatedAt']) &&
+        isValidBudget(incoming());
+
+      allow update: if isFinanceAdmin() &&
+        isValidId(budgetId) &&
+        isValidBudget(incoming()) &&
+        incoming().createdBy == existing().createdBy &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['category', 'periodLabel', 'budgetAmount', 'updatedAt']);
+
+      allow delete: if isFinanceAdmin() && isValidId(budgetId);
+    }
+
+    match /qurbani_batches/{batchId} {
+      allow get: if isStaffReader() && isValidId(batchId);
+      allow list: if isStaffReader();
+
+      allow create: if isOpsManager() &&
+        isValidId(batchId) &&
+        incoming().createdBy == request.auth.uid &&
+        incoming().keys().hasAll(['eventName', 'totalMeatKg', 'totalFamilies', 'distributionPerFamily', 'eventDate', 'status', 'createdBy', 'createdAt', 'updatedAt']) &&
+        incoming().keys().hasOnly(['eventName', 'animalInfo', 'purchaseCost', 'totalMeatKg', 'totalFamilies', 'distributionPerFamily', 'eventDate', 'status', 'createdBy', 'createdAt', 'updatedAt']) &&
+        isValidQurbaniBatch(incoming());
+
+      allow update: if isOpsManager() &&
+        isValidId(batchId) &&
+        isValidQurbaniBatch(incoming()) &&
+        incoming().createdBy == existing().createdBy &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['eventName', 'animalInfo', 'purchaseCost', 'totalMeatKg', 'totalFamilies', 'distributionPerFamily', 'eventDate', 'status', 'updatedAt']);
+
+      allow delete: if isFullAdmin() && isValidId(batchId);
+    }
+
+    match /meat_distributions/{distId} {
+      allow get: if isValidId(distId) && (isStaffReader() || isMyLinkedFamilyId(resource.data.familyId));
+      allow list: if isStaffReader() || isMyLinkedFamilyId(resource.data.familyId);
+
+      allow create: if isOpsManager() &&
+        isValidId(distId) &&
+        incoming().createdBy == request.auth.uid &&
+        incoming().keys().hasAll(['batchId', 'familyId', 'familyName', 'familyCode', 'allocatedKg', 'deliveredKg', 'status', 'createdBy', 'createdAt', 'updatedAt']) &&
+        incoming().keys().hasOnly(['batchId', 'familyId', 'familyName', 'familyCode', 'allocatedKg', 'deliveredKg', 'receivedBy', 'receivedAt', 'status', 'createdBy', 'createdAt', 'updatedAt']) &&
+        isValidMeatDistribution(incoming()) &&
+        (exists(/databases/$(database)/documents/qurbani_batches/$(incoming().batchId)) ||
+         existsAfter(/databases/$(database)/documents/qurbani_batches/$(incoming().batchId))) &&
+        (exists(/databases/$(database)/documents/families/$(incoming().familyId)) ||
+         existsAfter(/databases/$(database)/documents/families/$(incoming().familyId)));
+
+      allow update: if isOpsManager() &&
+        isValidId(distId) &&
+        isValidMeatDistribution(incoming()) &&
+        incoming().createdBy == existing().createdBy &&
+        incoming().batchId == existing().batchId &&
+        incoming().familyId == existing().familyId &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['familyName', 'familyCode', 'allocatedKg', 'deliveredKg', 'receivedBy', 'receivedAt', 'status', 'updatedAt']);
+
+      allow delete: if isFullAdmin() && isValidId(distId);
+    }
+
+    match /committees/{memberId} {
+      allow get: if isStaffReader() && isValidId(memberId);
+      allow list: if isStaffReader();
+
+      allow create: if isOpsManager() &&
+        isValidId(memberId) &&
+        incoming().createdBy == request.auth.uid &&
+        incoming().keys().hasAll(['name', 'role', 'active', 'createdBy', 'createdAt', 'updatedAt']) &&
+        incoming().keys().hasOnly(['name', 'role', 'phone', 'familyId', 'familyName', 'term', 'active', 'createdBy', 'createdAt', 'updatedAt']) &&
+        isValidCommitteeMember(incoming());
+
+      allow update: if isOpsManager() &&
+        isValidId(memberId) &&
+        isValidCommitteeMember(incoming()) &&
+        incoming().createdBy == existing().createdBy &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['name', 'role', 'phone', 'familyId', 'familyName', 'term', 'active', 'updatedAt']);
+
+      allow delete: if isOpsManager() && isValidId(memberId);
+    }
+
+    match /events/{eventId} {
+      allow get: if isValidId(eventId);
+      allow list: if true;
+
+      allow create: if isOpsManager() &&
+        isValidId(eventId) &&
+        incoming().createdBy == request.auth.uid &&
+        incoming().keys().hasAll(['title', 'eventDate', 'eventType', 'createdBy', 'createdAt', 'updatedAt']) &&
+        incoming().keys().hasOnly(['title', 'eventDate', 'eventTime', 'location', 'eventType', 'description', 'rsvpEnabled', 'createdBy', 'createdAt', 'updatedAt']) &&
+        isValidSocietyEvent(incoming());
+
+      allow update: if isOpsManager() &&
+        isValidId(eventId) &&
+        isValidSocietyEvent(incoming()) &&
+        incoming().createdBy == existing().createdBy &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['title', 'eventDate', 'eventTime', 'location', 'eventType', 'description', 'rsvpEnabled', 'updatedAt']);
+
+      allow delete: if isOpsManager() && isValidId(eventId);
+    }
+
+    match /assets/{assetId} {
+      allow get: if isStaffReader() && isValidId(assetId);
+      allow list: if isStaffReader();
+
+      allow create: if isAnyStaffWriter() &&
+        isValidId(assetId) &&
+        incoming().createdBy == request.auth.uid &&
+        incoming().keys().hasAll(['name', 'category', 'value', 'condition', 'createdBy', 'createdAt', 'updatedAt']) &&
+        incoming().keys().hasOnly(['name', 'category', 'value', 'purchaseDate', 'condition', 'location', 'note', 'createdBy', 'createdAt', 'updatedAt']) &&
+        isValidSocietyAsset(incoming());
+
+      allow update: if isAnyStaffWriter() &&
+        isValidId(assetId) &&
+        isValidSocietyAsset(incoming()) &&
+        incoming().createdBy == existing().createdBy &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['name', 'category', 'value', 'purchaseDate', 'condition', 'location', 'note', 'updatedAt']);
+
+      allow delete: if isFullAdmin() && isValidId(assetId);
+    }
+
+    match /documents/{docId} {
+      allow get: if isStaffReader() && isValidId(docId);
+      allow list: if isStaffReader();
+
+      allow create: if isAnyStaffWriter() &&
+        isValidId(docId) &&
+        incoming().createdBy == request.auth.uid &&
+        incoming().keys().hasAll(['title', 'category', 'docDate', 'createdBy', 'createdAt', 'updatedAt']) &&
+        incoming().keys().hasOnly(['title', 'category', 'docDate', 'fileName', 'note', 'createdBy', 'createdAt', 'updatedAt']) &&
+        isValidSocietyDocument(incoming());
+
+      allow update: if isAnyStaffWriter() &&
+        isValidId(docId) &&
+        isValidSocietyDocument(incoming()) &&
+        incoming().createdBy == existing().createdBy &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['title', 'category', 'docDate', 'fileName', 'note', 'updatedAt']);
+
+      allow delete: if isFullAdmin() && isValidId(docId);
+    }
+
+    match /meetings/{meetingId} {
+      allow get: if isStaffReader() && isValidId(meetingId);
+      allow list: if isStaffReader();
+
+      allow create: if isOpsManager() &&
+        isValidId(meetingId) &&
+        incoming().createdBy == request.auth.uid &&
+        incoming().keys().hasAll(['title', 'meetingDate', 'decisions', 'status', 'createdBy', 'createdAt', 'updatedAt']) &&
+        incoming().keys().hasOnly(['title', 'meetingDate', 'meetingTime', 'location', 'agenda', 'attendees', 'decisions', 'assignedTo', 'deadline', 'status', 'createdBy', 'createdAt', 'updatedAt']) &&
+        isValidMeeting(incoming());
+
+      allow update: if isOpsManager() &&
+        isValidId(meetingId) &&
+        isValidMeeting(incoming()) &&
+        incoming().createdBy == existing().createdBy &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['title', 'meetingDate', 'meetingTime', 'location', 'agenda', 'attendees', 'decisions', 'assignedTo', 'deadline', 'status', 'updatedAt']);
+
+      allow delete: if isOpsManager() && isValidId(meetingId);
+    }
+
+    match /welfare_records/{recordId} {
+      allow get: if isStaffReader() && isValidId(recordId);
+      allow list: if isStaffReader();
+
+      allow create: if isAnyStaffWriter() &&
+        isValidId(recordId) &&
+        incoming().createdBy == request.auth.uid &&
+        incoming().keys().hasAll(['recordType', 'beneficiaryName', 'amount', 'recordDate', 'createdBy', 'createdAt', 'updatedAt']) &&
+        incoming().keys().hasOnly(['recordType', 'beneficiaryName', 'phone', 'plotNumber', 'amount', 'accountId', 'accountName', 'recordDate', 'note', 'createdBy', 'createdAt', 'updatedAt']) &&
+        isValidWelfareRecord(incoming());
+
+      allow update: if isAnyStaffWriter() &&
+        isValidId(recordId) &&
+        isValidWelfareRecord(incoming()) &&
+        incoming().createdBy == existing().createdBy &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['recordType', 'beneficiaryName', 'phone', 'plotNumber', 'amount', 'accountId', 'accountName', 'recordDate', 'note', 'updatedAt']);
+
+      allow delete: if isFullAdmin() && isValidId(recordId);
+    }
+
+    match /complaints/{complaintId} {
+      allow get: if isValidId(complaintId) && (isStaffReader() || (isSignedIn() && resource.data.authorUid == request.auth.uid));
+      allow list: if isStaffReader() || (isSignedIn() && resource.data.authorUid == request.auth.uid);
+
+      allow create: if isSignedIn() &&
+        isValidId(complaintId) &&
+        incoming().authorUid == request.auth.uid &&
+        incoming().status == 'open' &&
+        incoming().keys().hasAll(['authorUid', 'authorName', 'subject', 'message', 'status', 'createdAt', 'updatedAt']) &&
+        incoming().keys().hasOnly(['authorUid', 'authorName', 'familyId', 'subject', 'message', 'status', 'createdAt', 'updatedAt']) &&
+        isValidComplaint(incoming());
+
+      allow update: if isOpsManager() &&
+        isValidId(complaintId) &&
+        isValidComplaint(incoming()) &&
+        incoming().authorUid == existing().authorUid &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().diff(existing()).affectedKeys().hasOnly(['status', 'adminReply', 'updatedAt']);
+
+      allow delete: if isFullAdmin() && isValidId(complaintId);
+    }
+
+    match /audit_logs/{logId} {
+      allow get: if isStaffReader() && isValidId(logId);
+      allow list: if isStaffReader();
+
+      allow create: if isAnyStaffWriter() &&
+        isValidId(logId) &&
+        incoming().userId == request.auth.uid &&
+        incoming().keys().hasAll(['userId', 'action', 'tableName', 'createdAt']) &&
+        incoming().keys().hasOnly(['userId', 'userEmail', 'action', 'tableName', 'recordId', 'summary', 'beforeSummary', 'afterSummary', 'createdAt']) &&
+        isValidAuditLog(incoming());
+
+      allow update, delete: if false;
+    }
+  }
+}
