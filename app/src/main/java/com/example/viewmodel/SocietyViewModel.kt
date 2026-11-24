@@ -4,6 +4,9 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.data.firebase.SocietyRepository
+import com.example.data.localserver.ConnectionTestResult
+import com.example.data.localserver.LocalHttpBackend
+import com.example.data.localserver.ServerRuntimeState
 import com.example.data.model.AuditLogEntry
 import com.example.data.model.BankAccount
 import com.example.data.model.BudgetItem
@@ -32,6 +35,7 @@ import com.example.data.prefs.AppLanguage
 import com.example.data.prefs.AppThemeMode
 import com.example.data.prefs.AutomationPrefs
 import com.example.data.prefs.LanguagePreferences
+import com.example.data.prefs.ServerConfig
 import com.google.firebase.firestore.FirebaseFirestoreException
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -56,8 +60,10 @@ class SocietyViewModel(
     private val repository: SocietyRepository,
     private val languagePrefs: LanguagePreferences,
     val currentUserId: String?,
-    private val currentUserEmail: String?,
-    private val currentUserEmailVerified: Boolean
+    val currentUserEmail: String?,
+    private val currentUserEmailVerified: Boolean,
+    private val localBackend: LocalHttpBackend? = null,
+    private val localFallbackRole: String? = null
 ) : ViewModel() {
 
     private companion object {
@@ -67,6 +73,12 @@ class SocietyViewModel(
 
     private val _isBusy = MutableStateFlow(false)
     val isBusy: StateFlow<Boolean> = _isBusy.asStateFlow()
+
+    private val _isTestingServer = MutableStateFlow(false)
+    val isTestingServer: StateFlow<Boolean> = _isTestingServer.asStateFlow()
+
+    private val _serverTestResult = MutableStateFlow<ConnectionTestResult?>(null)
+    val serverTestResult: StateFlow<ConnectionTestResult?> = _serverTestResult.asStateFlow()
 
     private val _events = MutableSharedFlow<String>()
     val events = _events.asSharedFlow()
@@ -79,6 +91,9 @@ class SocietyViewModel(
 
     val automationPrefs: StateFlow<AutomationPrefs> = languagePrefs.automationPrefsFlow
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS), AutomationPrefs())
+
+    val serverConfig: StateFlow<ServerConfig> = languagePrefs.serverConfigFlow
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS), ServerConfig())
 
     private fun <T> Flow<T>.toUiStateFlow(label: String): Flow<UiState<T>> =
         this.map<T, UiState<T>> { UiState.Success(it) }
@@ -110,11 +125,15 @@ class SocietyViewModel(
             if (bootstrapped && (profileRole == null || profileRole == SocietyRoles.MEMBER)) {
                 SocietyRoles.SUPER_ADMIN
             } else {
-                profileRole ?: SocietyRoles.MEMBER
+                profileRole ?: localFallbackRole ?: SocietyRoles.MEMBER
             }
         }
         .distinctUntilChanged()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS), if (currentUserId == null) "guest" else SocietyRoles.MEMBER)
+        .stateIn(
+            viewModelScope,
+            SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS),
+            if (currentUserId == null) "guest" else (localFallbackRole ?: SocietyRoles.MEMBER)
+        )
 
     val isSuperAdmin: StateFlow<Boolean> = effectiveRole
         .map { it == SocietyRoles.SUPER_ADMIN }
@@ -306,6 +325,43 @@ class SocietyViewModel(
         viewModelScope.launch {
             languagePrefs.updateAutomationPrefs(updated)
             _events.emit("Preferences saved")
+        }
+    }
+
+    fun testLocalServerConnection(url: String, token: String) {
+        viewModelScope.launch {
+            _isTestingServer.value = true
+            try {
+                val backend = localBackend ?: LocalHttpBackend()
+                _serverTestResult.value = backend.testConnection(url, token)
+            } finally {
+                _isTestingServer.value = false
+            }
+        }
+    }
+
+    fun updateServerConfig(updated: ServerConfig, onRestartRequired: () -> Unit = {}) {
+        viewModelScope.launch {
+            val previous = serverConfig.value
+            languagePrefs.updateServerConfig(updated)
+            _serverTestResult.value = null
+            if (ServerRuntimeState.requiresRestartForSwitch(previous.mode, updated.mode) ||
+                (previous.mode == com.example.data.prefs.ServerMode.LOCAL_EMULATOR &&
+                    updated.mode == com.example.data.prefs.ServerMode.LOCAL_EMULATOR &&
+                    (previous.emulatorHost != updated.emulatorHost ||
+                        previous.firestorePort != updated.firestorePort ||
+                        previous.authPort != updated.authPort))
+            ) {
+                onRestartRequired()
+            } else {
+                _events.emit("Server configuration updated")
+            }
+        }
+    }
+
+    fun signOutLocalServer() {
+        viewModelScope.launch {
+            languagePrefs.saveLocalAuthSession(null)
         }
     }
 

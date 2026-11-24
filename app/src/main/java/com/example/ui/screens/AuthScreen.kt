@@ -20,9 +20,11 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBalance
+import androidx.compose.material.icons.filled.Dns
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.VerifiedUser
 import androidx.compose.material3.Button
@@ -32,7 +34,10 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -52,20 +57,34 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.credentials.CredentialManager
 import com.example.R
 import com.example.data.firebase.attemptAutoSignIn
 import com.example.data.firebase.onGoogleSignInClicked
+import com.example.data.localserver.LocalHttpBackend
 import com.example.data.prefs.AppLanguage
+import com.example.data.prefs.LocalAuthSession
+import com.example.data.prefs.ServerConfig
+import com.example.data.prefs.ServerMode
 import com.example.ui.components.LanguageToggleChip
 import com.example.ui.i18n.stringsFor
+import com.google.firebase.Firebase
+import com.google.firebase.auth.auth
+import com.google.firebase.auth.userProfileChangeRequest
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 @Composable
 fun AuthScreen(
     onAuthSuccess: () -> Unit,
-    onBackToPublic: (() -> Unit)? = null
+    onBackToPublic: (() -> Unit)? = null,
+    serverConfig: ServerConfig = ServerConfig(),
+    localBackend: LocalHttpBackend? = null,
+    onLocalAuthSuccess: ((LocalAuthSession) -> Unit)? = null
 ) {
     if (onBackToPublic != null) {
         BackHandler(onBack = onBackToPublic)
@@ -80,14 +99,21 @@ fun AuthScreen(
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
-    LaunchedEffect(Unit) {
-        attemptAutoSignIn(
-            context = context,
-            credentialManager = credentialManager,
-            onAuthSuccess = onAuthSuccess,
-            onUnauthenticated = {},
-            scope = scope
-        )
+    var fullNameInput by remember { mutableStateOf("") }
+    var emailInput by remember { mutableStateOf("") }
+    var passwordInput by remember { mutableStateOf("") }
+    var createEmulatorAccount by remember { mutableStateOf(false) }
+
+    LaunchedEffect(serverConfig.mode) {
+        if (serverConfig.mode == ServerMode.CLOUD_FIREBASE) {
+            attemptAutoSignIn(
+                context = context,
+                credentialManager = credentialManager,
+                onAuthSuccess = onAuthSuccess,
+                onUnauthenticated = {},
+                scope = scope
+            )
+        }
     }
 
     Box(
@@ -192,7 +218,7 @@ fun AuthScreen(
                         color = MaterialTheme.colorScheme.primaryContainer
                     ) {
                         Icon(
-                            imageVector = Icons.Filled.AccountBalance,
+                            imageVector = if (serverConfig.mode == ServerMode.CLOUD_FIREBASE) Icons.Filled.AccountBalance else Icons.Filled.Dns,
                             contentDescription = strings.signInTitle,
                             tint = MaterialTheme.colorScheme.onPrimaryContainer,
                             modifier = Modifier
@@ -202,14 +228,18 @@ fun AuthScreen(
                     }
 
                     Text(
-                        text = strings.signInTitle,
+                        text = if (serverConfig.mode == ServerMode.LOCAL_HTTP_SERVER) strings.localSignInTitle else strings.signInTitle,
                         style = MaterialTheme.typography.headlineSmall,
                         textAlign = TextAlign.Center,
                         color = MaterialTheme.colorScheme.onSurface
                     )
 
                     Text(
-                        text = strings.signInDesc,
+                        text = when (serverConfig.mode) {
+                            ServerMode.LOCAL_HTTP_SERVER -> "${strings.localSignInDesc}\n(${serverConfig.serverUrl})"
+                            ServerMode.LOCAL_EMULATOR -> "${strings.emulatorSignInDesc}\n(${serverConfig.emulatorHost}:${serverConfig.authPort})"
+                            ServerMode.CLOUD_FIREBASE -> strings.signInDesc
+                        },
                         style = MaterialTheme.typography.bodyMedium,
                         textAlign = TextAlign.Center,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -242,7 +272,11 @@ fun AuthScreen(
                             )
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
-                                text = "Cloud Sync",
+                                text = when (serverConfig.mode) {
+                                    ServerMode.CLOUD_FIREBASE -> "Cloud Sync"
+                                    ServerMode.LOCAL_EMULATOR -> "Local Emulator"
+                                    ServerMode.LOCAL_HTTP_SERVER -> "Local Server"
+                                },
                                 style = MaterialTheme.typography.labelMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -264,8 +298,109 @@ fun AuthScreen(
                         }
                     }
 
-                    Button(
-                        onClick = {
+                    if (serverConfig.mode == ServerMode.LOCAL_HTTP_SERVER || serverConfig.mode == ServerMode.LOCAL_EMULATOR) {
+                        if (serverConfig.mode == ServerMode.LOCAL_HTTP_SERVER || createEmulatorAccount) {
+                            OutlinedTextField(
+                                value = fullNameInput,
+                                onValueChange = { fullNameInput = it },
+                                label = { Text(strings.fullNameInputLabel) },
+                                singleLine = true,
+                                modifier = Modifier.fillMaxWidth().testTag("local_full_name_input")
+                            )
+                        }
+                        OutlinedTextField(
+                            value = emailInput,
+                            onValueChange = { emailInput = it },
+                            label = { Text(strings.emailInputLabel) },
+                            singleLine = true,
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                            modifier = Modifier.fillMaxWidth().testTag("local_email_input")
+                        )
+                        OutlinedTextField(
+                            value = passwordInput,
+                            onValueChange = { passwordInput = it },
+                            label = { Text(strings.passwordOrPinLabel) },
+                            singleLine = true,
+                            visualTransformation = PasswordVisualTransformation(),
+                            modifier = Modifier.fillMaxWidth().testTag("local_password_input")
+                        )
+
+                        if (serverConfig.mode == ServerMode.LOCAL_EMULATOR) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(strings.createAccountToggle, style = MaterialTheme.typography.bodyMedium)
+                                Switch(checked = createEmulatorAccount, onCheckedChange = { createEmulatorAccount = it })
+                            }
+                        }
+
+                        Button(
+                            onClick = {
+                                errorMessage = null
+                                val email = emailInput.trim()
+                                val pass = passwordInput
+                                if (email.isBlank() || pass.isBlank()) {
+                                    errorMessage = "Email and Password / PIN are required"
+                                    return@Button
+                                }
+                                isLoading = true
+                                scope.launch {
+                                    if (serverConfig.mode == ServerMode.LOCAL_HTTP_SERVER) {
+                                        val backend = localBackend ?: LocalHttpBackend(serverConfig)
+                                        val res = backend.signInLocalServer(fullNameInput, email, pass)
+                                        isLoading = false
+                                        res.onSuccess { session ->
+                                            onLocalAuthSuccess?.invoke(session)
+                                            onAuthSuccess()
+                                        }.onFailure { err ->
+                                            errorMessage = err.localizedMessage ?: "Local server login failed"
+                                        }
+                                    } else {
+                                        try {
+                                            val auth = Firebase.auth
+                                            if (createEmulatorAccount) {
+                                                val result = auth.createUserWithEmailAndPassword(email, pass).await()
+                                                if (fullNameInput.isNotBlank()) {
+                                                    result.user?.updateProfile(
+                                                        userProfileChangeRequest { displayName = fullNameInput.trim() }
+                                                    )?.await()
+                                                }
+                                            } else {
+                                                auth.signInWithEmailAndPassword(email, pass).await()
+                                            }
+                                            isLoading = false
+                                            onAuthSuccess()
+                                        } catch (e: Exception) {
+                                            isLoading = false
+                                            errorMessage = e.localizedMessage ?: "Emulator sign-in failed"
+                                        }
+                                    }
+                                }
+                            },
+                            enabled = !isLoading,
+                            shape = RoundedCornerShape(14.dp),
+                            modifier = Modifier.fillMaxWidth().height(52.dp).testTag("local_sign_in_submit_button")
+                        ) {
+                            if (isLoading) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(22.dp),
+                                    color = MaterialTheme.colorScheme.onPrimary,
+                                    strokeWidth = 2.dp
+                                )
+                            } else {
+                                Text(strings.signInSubmitButton, style = MaterialTheme.typography.labelLarge)
+                            }
+                        }
+                    }
+
+                    if (serverConfig.mode != ServerMode.LOCAL_HTTP_SERVER) {
+                        val googleButtonModifier = Modifier
+                            .fillMaxWidth()
+                            .height(52.dp)
+                            .testTag("google_sign_in_button")
+                        val clickGoogle = {
                             errorMessage = null
                             isLoading = true
                             onGoogleSignInClicked(
@@ -284,28 +419,34 @@ fun AuthScreen(
                                     isLoading = false
                                 }
                             )
-                        },
-                        enabled = !isLoading,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary
-                        ),
-                        shape = RoundedCornerShape(14.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(52.dp)
-                            .testTag("google_sign_in_button")
-                    ) {
-                        if (isLoading) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(22.dp),
-                                color = MaterialTheme.colorScheme.onPrimary,
-                                strokeWidth = 2.dp
-                            )
+                        }
+                        if (serverConfig.mode == ServerMode.CLOUD_FIREBASE) {
+                            Button(
+                                onClick = clickGoogle,
+                                enabled = !isLoading,
+                                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                                shape = RoundedCornerShape(14.dp),
+                                modifier = googleButtonModifier
+                            ) {
+                                if (isLoading) {
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(22.dp),
+                                        color = MaterialTheme.colorScheme.onPrimary,
+                                        strokeWidth = 2.dp
+                                    )
+                                } else {
+                                    Text(strings.signInButton, style = MaterialTheme.typography.labelLarge)
+                                }
+                            }
                         } else {
-                            Text(
-                                text = strings.signInButton,
-                                style = MaterialTheme.typography.labelLarge
-                            )
+                            OutlinedButton(
+                                onClick = clickGoogle,
+                                enabled = !isLoading,
+                                shape = RoundedCornerShape(14.dp),
+                                modifier = googleButtonModifier
+                            ) {
+                                Text(strings.signInButton, style = MaterialTheme.typography.labelLarge)
+                            }
                         }
                     }
 

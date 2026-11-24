@@ -432,5 +432,11 @@ object ReportExporter {
         context.startActivity(Intent.createChooser(intent, chooserTitle))
     }
 
+    fun shareLocalServerScript(context: Context, scriptContent: String) {
+        val outFile = File(reportsDir(context), "masjid-local-server.js.txt")
+        outFile.writeText(scriptContent, Charsets.UTF_8)
+        shareFile(context, outFile, "text/plain", "Share Local Server Script (rename to server.js & run: node server.js)")
+    }
+
     private fun escapeCsv(value: String): String = value.replace("\"", "\"\"")
 }

@@ -44,13 +44,13 @@ import com.example.data.model.MosqueSchedule
 import com.example.data.model.PublicSummary
 import com.example.data.model.UiState
 import com.example.data.prefs.AppLanguage
+import com.example.data.prefs.ServerMode
 import com.example.ui.components.CurvedEmeraldTopBar
 import com.example.ui.components.FloatingEmeraldBottomBar
 import com.example.ui.components.buildShellBottomTabs
 import com.example.ui.i18n.stringsFor
 import com.example.util.ReportExporter
 import com.example.viewmodel.SocietyViewModel
-import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -60,7 +60,8 @@ fun MainAppScaffold(
     isSignedIn: Boolean,
     isDarkTheme: Boolean,
     userDisplayName: String,
-    onRequestSignIn: () -> Unit
+    onRequestSignIn: () -> Unit,
+    onRestartRequired: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -71,6 +72,9 @@ fun MainAppScaffold(
     val language by viewModel.language.collectAsStateWithLifecycle()
     val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
     val automationPrefs by viewModel.automationPrefs.collectAsStateWithLifecycle()
+    val serverConfig by viewModel.serverConfig.collectAsStateWithLifecycle()
+    val serverTestResult by viewModel.serverTestResult.collectAsStateWithLifecycle()
+    val isTestingServer by viewModel.isTestingServer.collectAsStateWithLifecycle()
     val strings = stringsFor(language)
     val effectiveRole by viewModel.effectiveRole.collectAsStateWithLifecycle()
     val isSuperAdmin by viewModel.isSuperAdmin.collectAsStateWithLifecycle()
@@ -158,7 +162,15 @@ fun MainAppScaffold(
 
     var quickPayFamily by remember { mutableStateOf<Family?>(null) }
     var quickPayAmount by remember { mutableStateOf<Double?>(null) }
-    val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
+    val currentUserEmail = viewModel.currentUserEmail
+
+    fun handleSignOut() {
+        if (serverConfig.mode == ServerMode.LOCAL_HTTP_SERVER) {
+            viewModel.signOutLocalServer()
+        } else {
+            signOutUser(credentialManager, scope)
+        }
+    }
 
     fun navigateTo(destId: Int, subTab: Int = 0) {
         when (destId) {
@@ -199,7 +211,7 @@ fun MainAppScaffold(
                 },
                 onAuthAction = {
                     scope.launch { drawerState.close() }
-                    if (isSignedIn) signOutUser(credentialManager, scope) else onRequestSignIn()
+                    if (isSignedIn) handleSignOut() else onRequestSignIn()
                 }
             )
         }
@@ -253,7 +265,7 @@ fun MainAppScaffold(
                             onTitleClick = if (isHome) { { selectedDest = 11 } } else null,
                             onNoticesClick = { selectedDest = 5 },
                             onAuthClick = {
-                                if (isSignedIn) signOutUser(credentialManager, scope) else onRequestSignIn()
+                                if (isSignedIn) handleSignOut() else onRequestSignIn()
                             }
                         )
                     }
@@ -525,6 +537,9 @@ fun MainAppScaffold(
                                 language = language,
                                 themeMode = themeMode,
                                 automationPrefs = automationPrefs,
+                                serverConfig = serverConfig,
+                                serverTestResult = serverTestResult,
+                                isTestingServer = isTestingServer,
                                 isStaffReader = isStaffReader,
                                 families = families,
                                 members = members,
@@ -532,7 +547,11 @@ fun MainAppScaffold(
                                 committees = committees,
                                 onToggleLanguage = viewModel::toggleLanguage,
                                 onSetThemeMode = viewModel::setThemeMode,
-                                onUpdateAutomationPrefs = viewModel::updateAutomationPrefs
+                                onUpdateAutomationPrefs = viewModel::updateAutomationPrefs,
+                                onTestServerConnection = viewModel::testLocalServerConnection,
+                                onSaveServerConfig = { cfg ->
+                                    viewModel.updateServerConfig(cfg, onRestartRequired = onRestartRequired)
+                                }
                             )
                         }
                     }

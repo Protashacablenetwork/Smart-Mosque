@@ -272,6 +272,9 @@ fun SettingsScreen(
     language: AppLanguage,
     themeMode: AppThemeMode,
     automationPrefs: AutomationPrefs,
+    serverConfig: com.example.data.prefs.ServerConfig,
+    serverTestResult: com.example.data.localserver.ConnectionTestResult?,
+    isTestingServer: Boolean,
     isStaffReader: Boolean,
     families: List<Family>,
     members: List<SocietyMember>,
@@ -280,6 +283,8 @@ fun SettingsScreen(
     onToggleLanguage: () -> Unit,
     onSetThemeMode: (AppThemeMode) -> Unit,
     onUpdateAutomationPrefs: (AutomationPrefs) -> Unit,
+    onTestServerConnection: (url: String, token: String) -> Unit,
+    onSaveServerConfig: (com.example.data.prefs.ServerConfig) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var reminderDays by remember(automationPrefs) { mutableStateOf(automationPrefs.dueReminderDays.toString()) }
@@ -294,6 +299,17 @@ fun SettingsScreen(
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
+            item {
+                ServerHostingCard(
+                    strings = strings,
+                    serverConfig = serverConfig,
+                    testResult = serverTestResult,
+                    isTestingConnection = isTestingServer,
+                    onTestConnection = onTestServerConnection,
+                    onSaveServerConfig = onSaveServerConfig
+                )
+            }
+
             item {
                 Card(
                     shape = MaterialTheme.shapes.medium,

@@ -380,6 +380,29 @@ interface AppStrings {
     val zakatInvestmentsLabel: String
     val zakatDebtsLabel: String
     val zakatPayableLabel: String
+    val serverSettingsTitle: String
+    val serverSettingsDesc: String
+    val serverModeCloud: String
+    val serverModeEmulator: String
+    val serverModeLocalHttp: String
+    val serverUrlLabel: String
+    val serverTokenLabel: String
+    val emulatorHostLabel: String
+    val firestorePortLabel: String
+    val authPortLabel: String
+    val testConnectionButton: String
+    val saveApplyServerButton: String
+    val shareServerScriptButton: String
+    val localSignInTitle: String
+    val localSignInDesc: String
+    val emulatorSignInDesc: String
+    val emailInputLabel: String
+    val passwordOrPinLabel: String
+    val fullNameInputLabel: String
+    val signInSubmitButton: String
+    val createAccountToggle: String
+    val serverRestartNotice: String
+    val navMasikKhata: String
 }
 
 fun stringsFor(language: AppLanguage): AppStrings =
